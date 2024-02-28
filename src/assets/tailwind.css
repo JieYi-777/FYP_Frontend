@@ -11,9 +11,24 @@
 
 @layer base {
   h1 {
-    @apply text-2xl;
+    @apply text-3xl font-bold my-3;
   }
   h2 {
-    @apply text-xl;
+    @apply text-2xl font-bold my-3.5;
+  }
+  h3 {
+    @apply text-xl font-semibold my-4;
+  }
+  h4 {
+    @apply text-lg font-semibold my-5;
+  }
+  h5 {
+    @apply text-base font-semibold my-6;
+  }
+  h6 {
+    @apply text-base font-semibold my-7;
+  }
+  p {
+    @apply text-base my-4;
   }
 }
