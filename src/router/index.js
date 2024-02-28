@@ -1,15 +1,28 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
+import Homepage from '../views/Homepage.vue'
+import NotFound404 from '../views/NotFound404.vue'
 
 const routes = [
   {
     path: '/',
-    name: 'home',
-    component: HomeView,
+    name: 'homepage',
+    component: Homepage,
     meta: {
-      title: 'Home Page - Smart Finance' // Specify the title for this route
+      title: 'Homepage - Smart Finance',
+      showNavigation: true
     }
   },
+
+  // CatchAll 404 Page
+  {
+    path: '/:catchAll(.*)',
+    name: 'notFound404',
+    component: NotFound404,
+    meta: {
+      title: 'Not Found Page - Smart Finance',
+      showNavigation: false
+    }
+  }
 ]
 
 const router = createRouter({

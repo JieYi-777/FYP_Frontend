@@ -1,7 +1,8 @@
 <template>
-  <h1 class="font-sans">
+  <h6 class="font-sans">
     This is the home view
-  </h1>
+  </h6>
+  <p>dwe</p>
 
   <Button label="Submit" />
 
@@ -11,7 +12,6 @@
 import Button from 'primevue/button';
 
 export default {
-  name: 'HomeView',
   components: {Button}
 }
 </script>
