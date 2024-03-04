@@ -6,3 +6,9 @@
   
   <router-view/>
 </template>
+
+<style>
+  body {
+    background-color: rgb(243 244 246);
+  }
+</style>
