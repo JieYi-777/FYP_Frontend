@@ -23,15 +23,15 @@
 </template>
 
 <script>
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { fas } from '@fortawesome/free-solid-svg-icons'
-import Button from 'primevue/button'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import { fas } from '@fortawesome/free-solid-svg-icons';
+import Button from 'primevue/button';
 
 
 export default {
   components: { FontAwesomeIcon, Button },
   setup(){
-    return {fas}
+    return {fas};
   }
 }
 </script>
