@@ -8,7 +8,7 @@ import './assets/tailwind.css';
 
 // Import PrimeVue UI framework
 import PrimeVue from 'primevue/config';
-import 'primevue/resources/themes/lara-light-blue/theme.css';
+import 'primevue/resources/themes/aura-light-blue/theme.css';
 import 'primeicons/primeicons.css';
 
 
