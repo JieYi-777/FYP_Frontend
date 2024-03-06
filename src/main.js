@@ -11,6 +11,7 @@ import PrimeVue from 'primevue/config';
 import 'primevue/resources/themes/aura-light-blue/theme.css';
 import 'primeicons/primeicons.css';
 import ToastService from 'primevue/toastservice';
+import store from './store'
 
 
-createApp(App).use(router).use(PrimeVue).use(ToastService).mount('#app');
+createApp(App).use(store).use(router).use(PrimeVue).use(ToastService).mount('#app');

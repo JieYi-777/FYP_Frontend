@@ -2,10 +2,12 @@
   <div class="h-screen flex items-center justify-center text-center">
     <Card id="registration_form">
 
+      <!-- Use the UserCardHeader component for the header of Card component-->
       <template #header>
         <UserCardHeader title="Registration" />
       </template>
 
+      <!-- The content (registration form) of the Card component -->
       <template #content>
         <form>
 
@@ -75,14 +77,15 @@
         </form>
       </template>
     
+      <!-- Use the UserCardFooter component for the footer of Card component -->
       <template #footer>
-        <UserCardFooter buttonText="Register" @buttonClick="submit"/>
+        <UserCardFooter buttonText="Register" @buttonClick="register"/>
       </template>
 
     </Card>
-    <Toast position="bottom-right" />
 
-    <button type="click" @click="test">dsd</button>
+    <!-- Toast respond to button click -->
+    <Toast position="bottom-right" />
   </div>
 </template>
 
@@ -99,6 +102,8 @@ import { useToast } from 'primevue/usetoast';
 
 import { usernameValidation, emailValidation, passwordValidation, confirmPasswordValidation, checkValidInput } from '../composables/UserValidation';
 import axios1 from '../axios.service';
+import { useStore } from 'vuex';
+import { useRouter } from 'vue-router';
 
 export default {
   components: { UserCardHeader, UserCardFooter, Card, InputGroup, InputGroupAddon, InputText, Password, Toast },
@@ -119,32 +124,14 @@ export default {
     // Set the toast object
     const toast = useToast();
 
-    const submit = () => {
-      axios1.post('/auth/login', {
-          //"identifier": "Lim Jie Yi",
-          "identifier": "limjieyi@gmail.com",
-          "password": "12345678",
-          "isEmail": "true"
-      }).then(response => {
-        const data = response.data;
-        
-        localStorage.setItem('token', data.token);
-        toast.add({ severity: 'success', summary: 'Success', detail: data.message, life: 3000 });
-      }).catch(error => {
-        const status = error.response.status;
-        const data = error.response.data;
+    // Set the Vuex store object
+    const store = useStore();
 
-        if(status === 401 || status === 404){
-          toast.add({ severity: 'warn', summary: 'Warning', detail: data.message, life: 3000 });
-        }
-        else if(status === 500){
-          toast.add({ severity: 'warn', summary: 'Warning', detail: data.message, life: 3000 });
-        }
-        else{
-          console.error('Error occurred:', error);
-          toast.add({ severity: 'error', summary: 'Error', detail: 'An error occurred while logging in', life: 3000 });
-        }
-      });
+    // Set the router object
+    const router = useRouter();
+
+    // Check all the inputs are valid, then submit to backend for registration
+    const register = () => {
       
       if(!username.value){
         username_validationText.value = 'Please enter your username';
@@ -164,18 +151,42 @@ export default {
 
       if(checkValidInput(username.value, username_validationText.value) && checkValidInput(email.value, email_validationText.value) &
       checkValidInput(password.value, password_validationText.value) && checkValidInput(confirmPassword.value, confirmPassword_validationText.value)) {
-        console.log('correct');
-      }
-    }
+        
+        const data = {
+          username: username.value.trim(),
+          email: email.value,
+          password: password.value
+        };
 
-    const test = ()=>{
-      axios1.get('/auth/test')
-    .then(response => {
-      console.log(response.data);
-    })
-    .catch(error => {
-      console.error('Error:', error);
-    });
+        axios1.post('/auth/register', data)
+        .then(response => {
+          const data = response.data;
+
+          store.dispatch('login', data.token);
+          toast.add({ severity: 'success', summary: data.message, detail: 'You will be redirected shortly', life: 3000 });
+
+          // Redirect to homepage after 4 seconds
+          setTimeout(() => {
+            router.push('/');
+          }, 4000);
+        }).catch(error =>{
+          const status = error.response?.status || 500;
+          const data = error.response?.data || { message: 'An error occurred while registering account' };
+
+          if (status >= 400 && status < 500) {
+            // Handle client errors (status codes in the range 400-499)
+            toast.add({ severity: 'warn', summary: 'Account Exists', detail: data.message, life: 3000 });
+          }
+          else {
+            toast.add({ severity: 'error', summary: 'Error', detail: data.message, life: 3000 });
+          }
+        });
+
+      }
+      else{
+        toast.add({ severity: 'warn', summary: 'Invalid Inputs', 
+        detail: 'Unable to submit the form. Please review your inputs and try again.', life: 4000 });
+      }
     }
 
     return { 
@@ -183,7 +194,7 @@ export default {
       email, email_validationText,
       password, password_validationText,
       confirmPassword, confirmPassword_validationText,
-      submit, test
+      register
     };
   }
 };

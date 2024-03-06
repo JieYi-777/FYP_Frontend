@@ -62,7 +62,7 @@ export const passwordValidation = () => {
     else if (newValue.length < 8) {
       password_validationText.value =  'Password must be at least 8 characters long';
     }
-    else if (!/[A-Z]/.test(newValue) || !/[a-z]/.test(newValue) || !/[0-9]/.test(newValue) || !/[@#$%^&*()\-_=+\[\]{}|;:'",.<>\/?]/.test(newValue)) {
+    else if (!/[A-Z]/.test(newValue) || !/[a-z]/.test(newValue) || !/[0-9]/.test(newValue) || !/[@#$%^&*()\-_=+\[\]{}|;:'",.<>\/?!]/.test(newValue)) {
       password_validationText.value = 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character';
     }
     else{

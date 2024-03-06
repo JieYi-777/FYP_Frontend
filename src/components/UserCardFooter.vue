@@ -1,5 +1,6 @@
 <template>
   
+  <!-- The button of the form -->
   <div class="mt-1">
     <Button :label="buttonText" class="w-full" @click="buttonClick"/>
   </div>
