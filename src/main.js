@@ -2,6 +2,7 @@
 import { createApp } from 'vue';
 import App from './App.vue';
 import router from './router';
+import store from './store'
 
 // Import tailwind css
 import './assets/tailwind.css';
@@ -11,7 +12,6 @@ import PrimeVue from 'primevue/config';
 import 'primevue/resources/themes/aura-light-blue/theme.css';
 import 'primeicons/primeicons.css';
 import ToastService from 'primevue/toastservice';
-import store from './store'
 
 
 createApp(App).use(store).use(router).use(PrimeVue).use(ToastService).mount('#app');

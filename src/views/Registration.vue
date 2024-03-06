@@ -149,6 +149,7 @@ export default {
       confirmPassword_validationText.value = 'Please confirm your password';
       }
 
+      // If all inputs valid, send registration request
       if(checkValidInput(username.value, username_validationText.value) && checkValidInput(email.value, email_validationText.value) &
       checkValidInput(password.value, password_validationText.value) && checkValidInput(confirmPassword.value, confirmPassword_validationText.value)) {
         
@@ -162,13 +163,14 @@ export default {
         .then(response => {
           const data = response.data;
 
+          // Store the token in localStorage and set success toast
           store.dispatch('login', data.token);
           toast.add({ severity: 'success', summary: data.message, detail: 'You will be redirected shortly', life: 3000 });
 
           // Redirect to homepage after 4 seconds
           setTimeout(() => {
-            router.push('/');
-          }, 4000);
+            router.push({name: 'homepage'});
+          }, 3000);
         }).catch(error =>{
           const status = error.response?.status || 500;
           const data = error.response?.data || { message: 'An error occurred while registering account' };

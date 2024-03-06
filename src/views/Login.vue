@@ -1,3 +1,17 @@
+<template>
+  <h1>Login page</h1>
+</template>
+
+<script>
+export default {
+
+}
+</script>
+
+<style>
+
+</style>
+
 axios1.post('/auth/login', {
           //"identifier": "Lim Jie Yi",
           "identifier": "limjieyi@gmail.com",
