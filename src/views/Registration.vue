@@ -76,10 +76,13 @@
       </template>
     
       <template #footer>
-        <UserCardFooter buttonText="Register" />
+        <UserCardFooter buttonText="Register" @buttonClick="submit"/>
       </template>
 
     </Card>
+    <Toast position="bottom-right" />
+
+    <button type="click" @click="test">dsd</button>
   </div>
 </template>
 
@@ -91,11 +94,14 @@ import InputGroup from 'primevue/inputgroup';
 import InputGroupAddon from 'primevue/inputgroupaddon';
 import InputText from 'primevue/inputtext';
 import Password from 'primevue/password';
+import Toast from 'primevue/toast';
+import { useToast } from 'primevue/usetoast';
 
-import { usernameValidation, emailValidation, passwordValidation, confirmPasswordValidation } from '../composables/UserValidation';
+import { usernameValidation, emailValidation, passwordValidation, confirmPasswordValidation, checkValidInput } from '../composables/UserValidation';
+import axios1 from '../axios.service';
 
 export default {
-  components: { UserCardHeader, UserCardFooter, Card, InputGroup, InputGroupAddon, InputText, Password },
+  components: { UserCardHeader, UserCardFooter, Card, InputGroup, InputGroupAddon, InputText, Password, Toast },
   setup() {
 
     // Get the ref variables and watch function to validate the username
@@ -108,13 +114,77 @@ export default {
     const { password, password_validationText } = passwordValidation();
 
     // Get the ref variables and watch function to validate the confirm password
-    const { confirmPassword, confirmPassword_validationText } = confirmPasswordValidation(password);
+    const { confirmPassword, confirmPassword_validationText } = confirmPasswordValidation(password, password_validationText);
+
+    // Set the toast object
+    const toast = useToast();
+
+    const submit = () => {
+      axios1.post('/auth/login', {
+          //"identifier": "Lim Jie Yi",
+          "identifier": "limjieyi@gmail.com",
+          "password": "12345678",
+          "isEmail": "true"
+      }).then(response => {
+        const data = response.data;
+        
+        localStorage.setItem('token', data.token);
+        toast.add({ severity: 'success', summary: 'Success', detail: data.message, life: 3000 });
+      }).catch(error => {
+        const status = error.response.status;
+        const data = error.response.data;
+
+        if(status === 401 || status === 404){
+          toast.add({ severity: 'warn', summary: 'Warning', detail: data.message, life: 3000 });
+        }
+        else if(status === 500){
+          toast.add({ severity: 'warn', summary: 'Warning', detail: data.message, life: 3000 });
+        }
+        else{
+          console.error('Error occurred:', error);
+          toast.add({ severity: 'error', summary: 'Error', detail: 'An error occurred while logging in', life: 3000 });
+        }
+      });
+      
+      if(!username.value){
+        username_validationText.value = 'Please enter your username';
+      }
+
+      if(!email.value){
+        email_validationText.value = 'Please enter your email';
+      }
+
+      if(!password.value){
+      password_validationText.value = 'Please enter your password';
+      }
+
+      if (!confirmPassword.value) {
+      confirmPassword_validationText.value = 'Please confirm your password';
+      }
+
+      if(checkValidInput(username.value, username_validationText.value) && checkValidInput(email.value, email_validationText.value) &
+      checkValidInput(password.value, password_validationText.value) && checkValidInput(confirmPassword.value, confirmPassword_validationText.value)) {
+        console.log('correct');
+      }
+    }
+
+    const test = ()=>{
+      axios1.get('/auth/test')
+    .then(response => {
+      console.log(response.data);
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
+    }
 
     return { 
       username, username_validationText, 
       email, email_validationText,
       password, password_validationText,
-      confirmPassword, confirmPassword_validationText};
+      confirmPassword, confirmPassword_validationText,
+      submit, test
+    };
   }
 };
 </script>

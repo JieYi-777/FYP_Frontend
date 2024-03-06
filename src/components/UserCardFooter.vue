@@ -1,7 +1,7 @@
 <template>
   
   <div class="mt-1">
-    <Button :label="buttonText" class="w-full" />
+    <Button :label="buttonText" class="w-full" @click="buttonClick"/>
   </div>
     
 </template>
@@ -11,6 +11,13 @@ import Button from 'primevue/button'
 
 export default {
   components: { Button },
-  props: ['buttonText']
+  props: ['buttonText'],
+  setup(props, {emit}) {
+    const buttonClick = ()=> {
+      emit('buttonClick');
+    }
+
+    return { buttonClick }
+  }
 }
 </script>
