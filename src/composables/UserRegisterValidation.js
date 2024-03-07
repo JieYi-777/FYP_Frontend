@@ -56,7 +56,7 @@ export const passwordValidation = () => {
 
   // To validate the password input
   watch(password, (newValue) => {
-    if(!newValue){
+    if(newValue.trim() === ''){
       password_validationText.value = 'Please enter your password';
     }
     else if (newValue.length < 8) {
@@ -81,10 +81,10 @@ export const confirmPasswordValidation = (password, password_validationText) => 
 
   // To validate the confirm password and password inputs when there is a change to confirm password
   watch(confirmPassword, (newConfirmPasswordValue) => {
-    if(!password.value) {
+    if(password.value.trim() === '') {
       password_validationText.value = 'Please enter your password';
     }
-    else if (!newConfirmPasswordValue) {
+    else if (newConfirmPasswordValue.trim() === '') {
       confirmPassword_validationText.value = 'Please confirm your password';
     }
     else if (newConfirmPasswordValue !== password.value) {

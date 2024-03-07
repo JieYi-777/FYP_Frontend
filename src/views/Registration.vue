@@ -108,10 +108,10 @@ import Password from 'primevue/password';
 import Toast from 'primevue/toast';
 import { useToast } from 'primevue/usetoast';
 
-import { usernameValidation, emailValidation, passwordValidation, confirmPasswordValidation, checkValidInput } from '../composables/UserValidation';
-import axios1 from '../axios.service';
+import { usernameValidation, emailValidation, passwordValidation, confirmPasswordValidation, checkValidInput } from '../composables/UserRegisterValidation';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
+import axios1 from '../axios.service';
 
 export default {
   components: { UserCardHeader, UserCardFooter, Card, InputGroup, InputGroupAddon, InputText, Password, Toast },
@@ -140,6 +140,8 @@ export default {
 
     // Check all the inputs are valid, then submit to backend for registration
     const register = () => {
+
+      // First check for each input, if no value, then showing the validation error message
       
       if(!username.value){
         username_validationText.value = 'Please enter your username';
@@ -164,27 +166,32 @@ export default {
         const data = {
           username: username.value.trim(),
           email: email.value,
-          password: password.value
+          password: password.value.trim()
         };
 
+        // Send request with user data for registration
         axios1.post('/auth/register', data)
         .then(response => {
           const data = response.data;
 
-          // Store the token in localStorage and set success toast
+          // Store the token in localStorage and set success toast message
           store.dispatch('login', data.token);
           toast.add({ severity: 'success', summary: data.message, detail: 'You will be redirected shortly', life: 3000 });
 
-          // Redirect to homepage after 4 seconds
+          // Redirect to homepage after 3 seconds
           setTimeout(() => {
             router.push({name: 'homepage'});
           }, 3000);
+
         }).catch(error =>{
+          // Check the status and data is exist or not, if exist use the data, else status = 500 and data is the message
           const status = error.response?.status || 500;
           const data = error.response?.data || { message: 'An error occurred while registering account' };
 
+          // Set the warning or error toast message based on the status code
+          // Warning means the username or email is already exist so cannot register
+          // Error means something error happened
           if (status >= 400 && status < 500) {
-            // Handle client errors (status codes in the range 400-499)
             toast.add({ severity: 'warn', summary: 'Account Exists', detail: data.message, life: 3000 });
           }
           else {
@@ -194,8 +201,9 @@ export default {
 
       }
       else{
+        // Set the invalid input toast message
         toast.add({ severity: 'warn', summary: 'Invalid Inputs', 
-        detail: 'Unable to submit the form. Please review your inputs and try again.', life: 4000 });
+        detail: 'Unable to register. Please review your inputs and try again.', life: 4000 });
       }
     }
 

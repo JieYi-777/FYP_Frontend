@@ -18,13 +18,13 @@
                 <i class="pi pi-user"></i>
               </InputGroupAddon>
 
-              <InputText placeholder="Username/Email" v-model="username" :class="{'p-invalid': username_validationText}"/>
+              <InputText placeholder="Username/Email" v-model="identifier" :class="{'p-invalid': identifier_validationText}"/>
             </InputGroup>
           </div>
 
           <!-- Validation respond to username input -->
-          <div :class="{'text-left mb-3': username_validationText, 'mb-9': !username_validationText}">
-            <small class="redText">{{ username_validationText }}</small>
+          <div :class="{'text-left mb-3': identifier_validationText, 'mb-9': !identifier_validationText}">
+            <small class="redText">{{ identifier_validationText }}</small>
           </div>        
 
           <!-- Password input -->
@@ -76,10 +76,105 @@ import Password from 'primevue/password';
 import Toast from 'primevue/toast';
 import { useToast } from 'primevue/usetoast';
 
+import { identifierValidation, passwordValidation, isEmail } from '../composables/UserLoginValidation';
+import { checkValidInput } from '../composables/UserRegisterValidation';
+import { useStore } from 'vuex';
+import { useRouter } from 'vue-router';
+import axios1 from '../axios.service';
+
 export default {
   components: { UserCardHeader, UserCardFooter, Card, InputGroup, InputGroupAddon, InputText, Password, Toast },
   setup() {
     
+    // Get the ref variables and watch function to validate the identifier
+    const { identifier, identifier_validationText } = identifierValidation();
+
+    // Get the ref variables and watch function to validate the password
+    const { password, password_validationText } = passwordValidation();
+
+    // Set the toast object
+    const toast = useToast();
+
+    // Set the Vuex store object
+    const store = useStore();
+
+    // Set the router object
+    const router = useRouter();
+    
+    // Check all the inputs are valid, then submit to backend for login
+    const login = () => {
+
+      // First check for each input, if no value, then showing the validation error message
+      if(!identifier.value){
+        identifier_validationText.value = 'Please enter your username or email';
+      }
+
+      if(!password.value){
+        password_validationText.value = 'Please enter your password';
+      }
+
+      // If all inputs valid, send login request
+      if(checkValidInput(identifier.value, identifier_validationText.value) && checkValidInput(password.value, password_validationText.value)) {
+        
+        const identifier_afterTrim = identifier.value.trim()
+
+        const data = {
+          identifier: identifier_afterTrim,
+          password: password.value.trim(),
+          isEmail: isEmail(identifier_afterTrim)
+        };
+
+        // Send request with user data for login
+        axios1.post('/auth/login', data)
+        .then(response => {
+          const data = response.data;
+          
+          // Dispatch the login action to update the token in Vuex
+          store.dispatch('login', data.token);
+          toast.add({ severity: 'success', summary: data.message, detail: 'You will be redirected shortly', life: 3000 });
+
+          // Redirect to homepage after 3 seconds
+          setTimeout(() => {
+            router.push({name: 'homepage'});
+          }, 3000);
+
+        }).catch(error => {
+          // Check the status and data is exist or not, if exist use the data, else status = 500 and data is the message
+          const status = error.response?.status || 500;
+          const data = error.response?.data || { message: 'An error occurred while registering account' };
+
+          // Set the warning or error toast message based on the status code
+          // Warning means the username or email is incorrect, or password incorrect so cannot login
+          // Error means something error happened
+          if (status >= 400 && status < 500) {
+            // If the password is incorrect
+            if(status == 401) {
+              toast.add({ severity: 'warn', summary: data.message, detail: 'Please verify your password', life: 3000 });
+            }
+            // If the username or email is incorrect, user not found
+            else {
+              toast.add({ severity: 'warn', summary: data.message, detail: 'Please verify your username or email', life: 3000 });
+            }
+            
+          }
+          else {
+            toast.add({ severity: 'error', summary: 'Error', detail: data.message, life: 3000 });
+          }
+        });
+
+      }
+      // Set the invalid input toast message
+      else {
+        toast.add({ severity: 'warn', summary: 'Invalid Inputs', 
+        detail: 'Unable to login. Please review your inputs and try again.', life: 4000 });
+      }
+    }
+
+    return {
+      identifier, identifier_validationText,
+      password, password_validationText,
+      login
+    };
   }
 }
 </script>
@@ -94,36 +189,3 @@ export default {
     padding: 0;
   }
 </style>
-
-axios1.post('/auth/login', {
-          //"identifier": "Lim Jie Yi",
-          "identifier": "limjieyi@gmail.com",
-          "password": "12345678",
-          "isEmail": "true"
-      }).then(response => {
-        const data = response.data;
-        
-        // Dispatch the login action to update the token in Vuex
-        store.dispatch('login', data.token);
-        toast.add({ severity: 'success', summary: 'Success', detail: data.message, life: 3000 });
-      }).catch(error => {
-        if(error.response){
-
-          const status = error.response.status;
-          const data = error.response.data;
-
-          if(status === 401 || status === 404){
-            toast.add({ severity: 'warn', summary: 'Warning', detail: data.message, life: 3000 });
-          }
-          else if(status === 500){
-            toast.add({ severity: 'warn', summary: 'Warning', detail: data.message, life: 3000 });
-          }
-          else{
-            console.error('Error occurred:', error);
-            toast.add({ severity: 'error', summary: 'Error', detail: 'An error occurred while logging in', life: 3000 });
-          }
-        }
-        else{
-          console.error('Error occurred:', error);
-        }
-      });
