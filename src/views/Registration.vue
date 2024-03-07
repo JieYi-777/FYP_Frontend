@@ -79,7 +79,15 @@
     
       <!-- Use the UserCardFooter component for the footer of Card component -->
       <template #footer>
-        <UserCardFooter buttonText="Register" @buttonClick="register"/>
+        <UserCardFooter buttonText="Register" @buttonClick="register">
+          <p class="mt-1 mb-0">
+            Already have an account?
+
+            <router-link :to="{name: 'login'}">
+              <span class="text-blue-600">Login Here</span>
+            </router-link>
+          </p>
+        </UserCardFooter>
       </template>
 
     </Card>
@@ -209,7 +217,7 @@ export default {
   }
 
   #registration_form .p-card-content{
-    padding: 0rem 0;
+    padding: 0;
   }
 
   .redText {

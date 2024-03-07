@@ -1,8 +1,9 @@
 <template>
   
   <!-- The button of the form -->
-  <div class="mt-1">
+  <div>
     <Button :label="buttonText" class="w-full" @click="buttonClick"/>
+    <slot></slot>
   </div>
     
 </template>
