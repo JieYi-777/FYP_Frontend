@@ -4,6 +4,8 @@ import axios1 from '../axios.service';
 import Registration from '../views/Registration.vue';
 import Login from '../views/Login.vue';
 import Homepage from '../views/Homepage.vue';
+import Expenses from '../views/Expenses.vue';
+import Budgets from '../views/Budgets.vue';
 import NotFound404 from '../views/NotFound404.vue';
 
 const checkTokenExpiration = async (to, from, next) => {
@@ -69,6 +71,32 @@ const routes = [
     component: Homepage,
     meta: {
       title: 'Homepage - Smart Finance',
+      showNavigation: true,
+      requiresAuth: true
+    },
+    beforeEnter: checkTokenExpiration
+  },
+
+  // User's expenses page
+  {
+    path: '/expenses',
+    name: 'expenses',
+    component: Expenses,
+    meta: {
+      title: 'Expenses - Smart Finance',
+      showNavigation: true,
+      requiresAuth: true
+    },
+    beforeEnter: checkTokenExpiration
+  },
+
+  // User's budgets page
+  {
+    path: '/budgets',
+    name: 'budgets',
+    component: Budgets,
+    meta: {
+      title: 'Budgets - Smart Finance',
       showNavigation: true,
       requiresAuth: true
     },
