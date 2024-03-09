@@ -6,22 +6,22 @@ export const createNavigationItems = () => {
   // The original items
   const items = ref([
     {
-        label: 'Home',
-        icon: 'pi pi-home',
-        route: {name: 'homepage'},
-        active: false
+      label: 'Home',
+      icon: 'pi pi-home',
+      route: {name: 'homepage'},
+      active: false
     },
     {
-        label: 'Expenses',
-        icon: 'pi pi-credit-card',
-        route: {name: 'expenses'},
-        active: false
+      label: 'Expenses',
+      icon: 'pi pi-credit-card',
+      route: {name: 'expenses'},
+      active: false
     },
     {
-        label: 'Budgets',
-        icon: 'pi pi-chart-pie',
-        route: {name: 'budgets'},
-        active: false
+      label: 'Budgets',
+      icon: 'pi pi-chart-pie',
+      route: {name: 'budgets'},
+      active: false
     }
   ]);
   
@@ -29,7 +29,7 @@ export const createNavigationItems = () => {
   const route = useRoute();
   
   // Update the menu items' active state, if its route is the current route, then true else false
-  const updatedItems = ref( computed(()=>{
+  const navigationItems = ref( computed(()=>{
     const currentRouteName = route.name;
     return items.value.map( (item) => {
       return {
@@ -41,5 +41,5 @@ export const createNavigationItems = () => {
     });
   }))
 
-  return { updatedItems };
+  return { navigationItems };
 }
