@@ -14,7 +14,7 @@
 
       <!-- Button to redirect user to homepage -->
       <router-link :to="{name: 'homepage'}">
-        <Button class="" label="Go Back to Homepage" icon="pi pi-arrow-left" raised/>
+        <Button label="Go Back to Homepage" icon="pi pi-arrow-left" raised/>
       </router-link>
 
     </div>
