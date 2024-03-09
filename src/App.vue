@@ -1,7 +1,7 @@
 <template>
-  <!-- Sample navigation menu -->
+  <!-- Navigation menu -->
   <div v-if="$route.meta.showNavigation">
-    <Menubar :model="items" id="navigationBar" exact=true>
+    <Menubar :model="updatedItems" id="navigationBar" exact=true>
       <template #start>
         <div class="flex items-center gap-x-2">
           <img alt="Smart Finance logo" src="./assets/SmartFinance.png" class="w-16 h-16"/>
@@ -12,7 +12,7 @@
 
       <template #item="{ item, props }">
         <router-link v-if="item.route" v-slot="{ href, navigate }" :to="item.route" custom>
-          <a v-ripple class="flex items-center border-b-4" :href="href" v-bind="props.action" @click="navigate">
+          <a v-ripple class="flex items-center" :class="{ 'border-b-3 border-blue-500': item.active }" :href="href" v-bind="props.action" @click="navigate">
             <i :class="[item.icon, 'text-lg']" />
             <span class="ml-2 text-lg">{{ item.label }}</span>
           </a>
@@ -26,8 +26,6 @@
       </template>
     </Menubar>
   </div>
-
-
   
   <router-view/>
 </template>
@@ -36,7 +34,8 @@
 import Menubar from 'primevue/menubar';
 import Avatar from 'primevue/avatar';
 
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
+import { useRoute } from 'vue-router';
 
 export default {
   components: { Menubar, Avatar },
@@ -46,7 +45,7 @@ export default {
           label: 'Home',
           icon: 'pi pi-home',
           route: {name: 'homepage'},
-          active: true
+          active: false
       },
       {
           label: 'Expenses',
@@ -62,9 +61,22 @@ export default {
       }
     ]);
 
-    return { items };
-  }
+    const route = useRoute();
+    
+    const updatedItems = ref( computed(()=>{
+      const currentRouteName = route.name;
+      return items.value.map( (item) => {
+        return {
+          label: item.label,
+          icon: item.icon,
+          route: item.route,
+          active: item.route.name === currentRouteName
+        };
+      });
+    }))
 
+    return { updatedItems };
+  }
 }
 </script>
 
