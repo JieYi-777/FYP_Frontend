@@ -13,8 +13,9 @@ import 'primevue/resources/themes/aura-light-blue/theme.css';
 import 'primeicons/primeicons.css';
 import ToastService from 'primevue/toastservice';
 import Ripple from 'primevue/ripple';
+import BadgeDirective from 'primevue/badgedirective';
 
 
 createApp(App).use(store).use(router)
-.directive('ripple', Ripple).use(PrimeVue, { ripple: true }).use(ToastService)
+.use(PrimeVue, { ripple: true }).use(ToastService).directive('ripple', Ripple).directive('badge', BadgeDirective)
 .mount('#app');

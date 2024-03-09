@@ -1,7 +1,11 @@
 <template>
   <!-- Navigation menu -->
   <div v-if="$route.meta.showNavigation">
+
+    <!-- The menu bar used as navigation bar -->
     <Menubar :model="updatedItems" id="navigationBar" exact=true>
+
+      <!-- The logo and name of the website -->
       <template #start>
         <div class="flex items-center gap-x-2">
           <img alt="Smart Finance logo" src="./assets/SmartFinance.png" class="w-16 h-16"/>
@@ -10,6 +14,7 @@
         </div>
       </template>
 
+      <!-- The menu items (navigation sections) -->
       <template #item="{ item, props }">
         <router-link v-if="item.route" v-slot="{ href, navigate }" :to="item.route" custom>
           <a v-ripple class="flex items-center" :class="{ 'border-b-3 border-blue-500': item.active }" :href="href" v-bind="props.action" @click="navigate">
@@ -19,9 +24,14 @@
         </router-link>
       </template>
 
+      <!-- The notification and user avatar -->
       <template #end>
-        <div class="flex items-center gap-2">
-            <Avatar shape="circle" />
+        <div class="flex items-center gap-x-3.5">
+            <Avatar v-badge="3" icon="pi pi-bell" shape="circle" size="large" class="bg-blue-100 hover:bg-blue-200 cursor-pointer"/>
+
+            <!-- User Avatar with its menu -->
+            <Avatar icon="pi pi-user" shape="circle" size="large" class="bg-blue-100 hover:bg-blue-200 cursor-pointer" @click="toggle" aria-haspopup="true" aria-controls="overlay_tmenu"/>
+            <TieredMenu ref="menu" id="overlay_tmenu" :model="items" popup />
         </div>
       </template>
     </Menubar>
@@ -33,49 +43,95 @@
 <script>
 import Menubar from 'primevue/menubar';
 import Avatar from 'primevue/avatar';
+import TieredMenu from 'primevue/tieredmenu';
 
+import { createNavigationItems } from './composables/NavigationBar';
 import { computed, ref } from 'vue';
 import { useRoute } from 'vue-router';
 
 export default {
-  components: { Menubar, Avatar },
+  components: { Menubar, Avatar, TieredMenu },
   setup() {
+    
+    // Get the updated menu items
+    const { updatedItems } = createNavigationItems();
+
+    const menu = ref();
     const items = ref([
-      {
-          label: 'Home',
-          icon: 'pi pi-home',
-          route: {name: 'homepage'},
-          active: false
-      },
-      {
-          label: 'Expenses',
-          icon: 'pi pi-credit-card',
-          route: {name: 'expenses'},
-          active: false
-      },
-      {
-          label: 'Budgets',
-          icon: 'pi pi-chart-pie',
-          route: {name: 'budgets'},
-          active: false
-      }
+        {
+            label: 'File',
+            icon: 'pi pi-file',
+            items: [
+                {
+                    label: 'New',
+                    icon: 'pi pi-plus',
+                    items: [
+                        {
+                            label: 'Document',
+                            icon: 'pi pi-file'
+                        },
+                        {
+                            label: 'Image',
+                            icon: 'pi pi-image'
+                        },
+                        {
+                            label: 'Video',
+                            icon: 'pi pi-video'
+                        }
+                    ]
+                },
+                {
+                    label: 'Open',
+                    icon: 'pi pi-folder-open'
+                },
+                {
+                    label: 'Print',
+                    icon: 'pi pi-print'
+                }
+            ]
+        },
+        {
+            label: 'Edit',
+            icon: 'pi pi-file-edit',
+            items: [
+                {
+                    label: 'Copy',
+                    icon: 'pi pi-copy'
+                },
+                {
+                    label: 'Delete',
+                    icon: 'pi pi-times'
+                }
+            ]
+        },
+        {
+            label: 'Search',
+            icon: 'pi pi-search'
+        },
+        {
+            separator: true
+        },
+        {
+            label: 'Share',
+            icon: 'pi pi-share-alt',
+            items: [
+                {
+                    label: 'Slack',
+                    icon: 'pi pi-slack'
+                },
+                {
+                    label: 'Whatsapp',
+                    icon: 'pi pi-whatsapp'
+                }
+            ]
+        }
     ]);
 
-    const route = useRoute();
-    
-    const updatedItems = ref( computed(()=>{
-      const currentRouteName = route.name;
-      return items.value.map( (item) => {
-        return {
-          label: item.label,
-          icon: item.icon,
-          route: item.route,
-          active: item.route.name === currentRouteName
-        };
-      });
-    }))
+    const toggle = (event) => {
+        menu.value.toggle(event);
+    };
 
-    return { updatedItems };
+    return { updatedItems, items, menu, toggle };
   }
 }
 </script>
@@ -87,9 +143,5 @@ export default {
 
   #navigationBar .p-menubar-start {
     @apply mr-4;
-  }
-
-  #navigationBar {
-    color: red;
   }
 </style>
