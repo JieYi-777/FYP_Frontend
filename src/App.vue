@@ -27,12 +27,42 @@
       <!-- The notification and user avatar -->
       <template #end>
         <div class="flex items-center gap-x-3.5">
-            <Avatar v-badge="3" v-ripple icon="pi pi-bell" shape="circle" size="large" class="bg-blue-100 hover:bg-blue-200 cursor-pointer"/>
+          <!-- Use two same Avatar because the v-badge cannot hide if the value is 0, they can call the overlay panel -->
+          <Avatar v-show="num_unreadNotifications > 0" v-badge="num_unreadNotifications" v-ripple icon="pi pi-bell" shape="circle" size="large" class="bg-blue-100 cursor-pointer hover:bg-blue-200" @click="toggleNotification"/>
+          <Avatar v-show="num_unreadNotifications === 0" v-ripple icon="pi pi-bell" shape="circle" size="large" class="bg-blue-100 cursor-pointer hover:bg-blue-200" @click="toggleNotification"/>
+          <OverlayPanel ref="op" class="h-96 overflow-auto">
 
-            <!-- User Avatar with its menu -->
-            <Avatar v-ripple icon="pi pi-user" shape="circle" size="large" class="p-ripple bg-blue-100 hover:bg-blue-200 cursor-pointer" 
-              @click="toggleUserMenu" aria-haspopup="true" aria-controls="user_menu"/>
-            <TieredMenu ref="userMenu" id="user_menu" :model="userMenuItems" popup />
+            <!-- The notification header and Mark All As Read icon -->
+            <div class="flex items-baseline justify-between mb-2.5">
+              <h6 class="m-0">Notifications</h6>
+              <i class="pi pi-check-square" style="font-weight: 600;" v-tooltip.bottom="'Mark All As Read'"></i>
+            </div>
+
+            <div class="flex flex-col w-72">
+              <div v-for="notification in notifications" :key="notification.id">
+
+                <!-- The notification list -->
+                <Card class="mb-2.5 shadow-md hover:cursor-pointer bg-blue-100" :class="{'opacity-50': notification.read }">
+                  <template #title> <div class="text-ellipsis overflow-hidden">{{ notification.title }}</div>  </template>
+                  <template #subtitle> <div>{{ notification.date_created }}</div> </template>
+                  <template #content>
+                    <div class="truncate">
+                      <p class="m-0">
+                        {{ notification.message }}
+                      </p>
+                    </div>
+                  </template>
+                </Card>
+              </div>
+            </div>
+
+          </OverlayPanel>
+          
+
+          <!-- User Avatar with its menu -->
+          <Avatar v-ripple icon="pi pi-user" shape="circle" size="large" class="p-ripple bg-blue-100 cursor-pointer hover:bg-blue-200" 
+            @click="toggleUserMenu" aria-haspopup="true" aria-controls="user_menu"/>
+          <TieredMenu ref="userMenu" id="user_menu" :model="userMenuItems" popup />
         </div>
       </template>
     </Menubar>
@@ -45,31 +75,67 @@
 import Menubar from 'primevue/menubar';
 import Avatar from 'primevue/avatar';
 import TieredMenu from 'primevue/tieredmenu';
+import OverlayPanel from 'primevue/overlaypanel';
+import Card from 'primevue/card';
 
 import { createNavigationItems } from './composables/NavigationBar';
 import { createUserMenu } from './composables/UserMenu';
+import { getUserNotifications } from './composables/UserNotification';
 import { ref } from 'vue';
 
+
+
 export default {
-  components: { Menubar, Avatar, TieredMenu },
+  components: { Menubar, Avatar, TieredMenu, OverlayPanel, Card },
   setup() {
     
-    // Get the updated menu items
+    // Get the navigation menu items
     const { navigationItems } = createNavigationItems();
 
+    // Get the user menu items
     const { userMenu, userMenuItems, toggleUserMenu } = createUserMenu();
 
-    return { navigationItems, userMenuItems, userMenu, toggleUserMenu };
+    const { op, notifications, toggleNotification, num_unreadNotifications } = getUserNotifications();
+
+    return {
+      navigationItems, 
+      userMenuItems, userMenu, toggleUserMenu, 
+      op, notifications, toggleNotification, num_unreadNotifications
+    };
   }
 }
 </script>
 
 <style>
+  /* The body color for all webpages */
   body {
     background-color: rgb(243 244 246);
   }
 
+  /* Add some margin the navigation menu */
   #navigationBar .p-menubar-start {
     @apply mr-4;
+  }
+
+  /* Chnage the tooltip color to blue color */
+  .p-tooltip.p-tooltip-right .p-tooltip-arrow {
+    border-right-color: #1d4ed8;
+  }
+  .p-tooltip.p-tooltip-left .p-tooltip-arrow {
+    border-left-color: #1d4ed8;
+  }
+  .p-tooltip.p-tooltip-top .p-tooltip-arrow {
+    border-top-color: #1d4ed8;
+  }
+  .p-tooltip.p-tooltip-bottom .p-tooltip-arrow {
+    border-bottom-color: #1d4ed8;
+  }
+
+  .p-tooltip .p-tooltip-text {
+    background: #1d4ed8;
+    color: #ffffff;
+    padding: 0.5rem 0.75rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+    border-radius: 6px;
   }
 </style>

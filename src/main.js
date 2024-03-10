@@ -14,8 +14,9 @@ import 'primeicons/primeicons.css';
 import ToastService from 'primevue/toastservice';
 import Ripple from 'primevue/ripple';
 import BadgeDirective from 'primevue/badgedirective';
+import Tooltip from 'primevue/tooltip';
 
 
 createApp(App).use(store).use(router)
-.use(PrimeVue, { ripple: true }).use(ToastService).directive('ripple', Ripple).directive('badge', BadgeDirective)
+.use(PrimeVue, { ripple: true }).use(ToastService).directive('ripple', Ripple).directive('badge', BadgeDirective).directive('tooltip', Tooltip)
 .mount('#app');
