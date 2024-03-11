@@ -1,9 +1,10 @@
 import { ref } from 'vue';
 
 export const createUserMenu = () => {
-
+  // Tiered Menu component reference (Used as user menu)
   const userMenu = ref();
 
+  // The menu items
   const userMenuItems = ref([
     {
       label: 'Profile',
@@ -22,8 +23,9 @@ export const createUserMenu = () => {
     }
 ]);
 
+  // Toggle event for the component
   const toggleUserMenu = (event) => {
-      userMenu.value.toggle(event);
+    userMenu.value.toggle(event);
   };
 
   return { userMenu, userMenuItems, toggleUserMenu }
