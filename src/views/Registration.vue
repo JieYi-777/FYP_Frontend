@@ -175,7 +175,7 @@ export default {
           const data = response.data;
 
           // Store the token in localStorage and set success toast message
-          store.dispatch('login', data.token);
+          store.dispatch('login', {token: data.token, username: data.username });
           toast.add({ severity: 'success', summary: data.message, detail: 'You will be redirected shortly', life: 3000 });
 
           // Redirect to homepage after 3 seconds
