@@ -30,30 +30,20 @@
           <!-- Use two same Avatar because the v-badge cannot hide if the value is 0, they can call the overlay panel -->
           <Avatar v-show="num_unreadNotifications > 0" v-badge="num_unreadNotifications" v-ripple icon="pi pi-bell" shape="circle" size="large" class="bg-blue-100 cursor-pointer hover:bg-blue-200" @click="toggleNotification"/>
           <Avatar v-show="num_unreadNotifications === 0" v-ripple icon="pi pi-bell" shape="circle" size="large" class="bg-blue-100 cursor-pointer hover:bg-blue-200" @click="toggleNotification"/>
-          <OverlayPanel ref="op" class="h-96 overflow-auto">
+
+          <!-- Overlay Panel to show the notification list, called by notification Avatar above, 
+          it cannot be closed (dismissable = false) if Dialog component is opened (full-content notification) -->
+          <OverlayPanel ref="opNotification" class="h-96 overflow-auto" :dismissable="!isDialogOpen">
 
             <!-- The notification header and Mark All As Read icon -->
             <div class="flex items-baseline justify-between mb-2.5">
               <h6 class="m-0">Notifications</h6>
-              <i class="pi pi-check-square" style="font-weight: 600;" v-tooltip.bottom="'Mark All As Read'"></i>
+              <i class="pi pi-check-square cursor-pointer" style="font-weight: 600;" v-tooltip.bottom="'Mark All As Read'" @click="markAllAsRead"></i>
             </div>
 
+            <!-- The notification list and full-content notification (Dialog) when user click each of it -->
             <div class="flex flex-col w-72">
-              <div v-for="notification in notifications" :key="notification.id">
-
-                <!-- The notification list -->
-                <Card class="mb-2.5 shadow-md hover:cursor-pointer bg-blue-100" :class="{'opacity-50': notification.read }">
-                  <template #title> <div class="text-ellipsis overflow-hidden">{{ notification.title }}</div>  </template>
-                  <template #subtitle> <div>{{ notification.date_created }}</div> </template>
-                  <template #content>
-                    <div class="truncate">
-                      <p class="m-0">
-                        {{ notification.message }}
-                      </p>
-                    </div>
-                  </template>
-                </Card>
-              </div>
+              <UserNotifications :notifications="notifications" :function="{markAsRead}" />
             </div>
 
           </OverlayPanel>
@@ -72,11 +62,11 @@
 </template>
 
 <script>
+import UserNotifications from './components/UserNotifications.vue';
 import Menubar from 'primevue/menubar';
 import Avatar from 'primevue/avatar';
 import TieredMenu from 'primevue/tieredmenu';
 import OverlayPanel from 'primevue/overlaypanel';
-import Card from 'primevue/card';
 
 import { createNavigationItems } from './composables/NavigationBar';
 import { createUserMenu } from './composables/UserMenu';
@@ -84,9 +74,8 @@ import { getUserNotifications } from './composables/UserNotification';
 import { ref } from 'vue';
 
 
-
 export default {
-  components: { Menubar, Avatar, TieredMenu, OverlayPanel, Card },
+  components: { Menubar, Avatar, TieredMenu, OverlayPanel, UserNotifications },
   setup() {
     
     // Get the navigation menu items
@@ -95,12 +84,12 @@ export default {
     // Get the user menu items
     const { userMenu, userMenuItems, toggleUserMenu } = createUserMenu();
 
-    const { op, notifications, toggleNotification, num_unreadNotifications } = getUserNotifications();
+    const { opNotification, notifications, toggleNotification, num_unreadNotifications, isDialogOpen, markAsRead, markAllAsRead } = getUserNotifications();
 
     return {
       navigationItems, 
       userMenuItems, userMenu, toggleUserMenu, 
-      op, notifications, toggleNotification, num_unreadNotifications
+      opNotification, notifications, toggleNotification, num_unreadNotifications, isDialogOpen, markAsRead, markAllAsRead
     };
   }
 }
