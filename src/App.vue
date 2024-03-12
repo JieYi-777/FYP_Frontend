@@ -56,6 +56,9 @@
         </div>
       </template>
     </Menubar>
+
+    <!-- Toast to show the error -->
+    <Toast position="bottom-right" />
   </div>
   
   <router-view/>
@@ -67,15 +70,17 @@ import Menubar from 'primevue/menubar';
 import Avatar from 'primevue/avatar';
 import TieredMenu from 'primevue/tieredmenu';
 import OverlayPanel from 'primevue/overlaypanel';
+import Toast from 'primevue/toast';
 
 import { createNavigationItems } from './composables/NavigationBar';
 import { createUserMenu } from './composables/UserMenu';
 import { getUserNotifications } from './composables/UserNotification';
-import { ref } from 'vue';
+import { useRoute } from 'vue-router';
+import { watch } from 'vue';
 
 
 export default {
-  components: { Menubar, Avatar, TieredMenu, OverlayPanel, UserNotifications },
+  components: { Menubar, Avatar, TieredMenu, OverlayPanel, UserNotifications, Toast },
   setup() {
     
     // Get the navigation menu items
@@ -84,7 +89,17 @@ export default {
     // Get the user menu items
     const { userMenu, userMenuItems, toggleUserMenu } = createUserMenu();
 
-    const { opNotification, notifications, toggleNotification, num_unreadNotifications, isDialogOpen, markAsRead, markAllAsRead } = getUserNotifications();
+    const { opNotification, notifications, sendGetNotificationRequest, toggleNotification, num_unreadNotifications, isDialogOpen, markAsRead, markAllAsRead } = getUserNotifications();
+
+    // Access the route object
+    const route = useRoute();
+
+    // When the navigtion bar is shown, then retirieve the notification data from database
+    watch(route, (newRoute) => {
+      if(newRoute.meta.showNavigation){
+        sendGetNotificationRequest();
+      }
+    })
 
     return {
       navigationItems, 

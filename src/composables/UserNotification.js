@@ -1,17 +1,80 @@
 import { ref, computed } from 'vue';
+import { useStore } from 'vuex';
+import { useToast } from 'primevue/usetoast';
+import axios1 from '../axios.service';
+import moment from 'moment-timezone';
 
+// Add visibility property for each notification
+const addVisibilityProperty = (notifications) => {
+  notifications.forEach(notification => {
+    notification.visible = false;
+  });
+
+  return notifications;
+}
+
+// To sort and format the date_created attribute of each notification object
+const sortAndFormatTime = (notifications) => {
+  // Convert dates to ISO 8601 format for sorting
+  notifications.forEach(notification => {
+    const malaysiaTime = moment.utc(notification.date_created).tz('Asia/Kuala_Lumpur');
+    notification.date_created_iso = malaysiaTime.format();
+  });
+
+  // Sort the array based on the ISO 8601 formatted date from latest to oldest
+  notifications.sort((a, b) => {
+    return moment(b.date_created_iso).diff(moment(a.date_created_iso));
+  });
+
+  // Format the sorted dates to 'DD MMM YYYY' format for display in Malaysia time
+  notifications.forEach(notification => {
+    const malaysiaTime = moment(notification.date_created_iso).tz('Asia/Kuala_Lumpur');
+    notification.date_created_formatted = malaysiaTime.format('DD MMM YYYY');
+  });
+
+  return notifications;
+}
+
+// Return the notification and functions
 export const getUserNotifications = () => {
+
+  // Access the Vuex store object
+  const store = useStore();
+
+  // Access the toast object
+  const toast = useToast();
 
   // The overlay panel component reference (Used for notification list)
   const opNotification = ref();
 
-  const notifications = ref([
-    { id: 1, title: 'Welcome to Smart Finance!', message: "Welcome to Smart Finance! We're thrilled to have you join our community. Here, you can easily manage your expenses, track your budgets, and stay informed about your financial goals.\n\nTo get started, we recommend setting up your budgets for different categories like food, transportation, and housing. By doing so, you'll receive timely notifications when you're approaching your budget limits.\n\nFeel free to explore the platform and reach out if you have any questions. Happy budgeting!", 
-    date_created: '3 Nov 2024', read: false, visible: false },
-    { id: 2, title: 'Bernardo Dominic', message: 'bernardodominic.png', date_created: '16 May 2024', read: false, visible: false },
-    { id: 3, title: 'Ioni Bowcher', message: 'ionibowcher.png', date_created: '28 Jun 2024', read: false, visible: false }
-  ]);
+  // The notifications data
+  const notifications = ref([]);
 
+  // Send the request to get notification data
+  const sendGetNotificationRequest = async() => {
+    try {
+
+      // Get the token
+      const token = store.getters.getToken;
+  
+      // Fetch the user's notifications data
+      const response = await axios1.get('/notifications', 
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+  
+      // Extract notifications from the response, do some processing and return
+      notifications.value =  addVisibilityProperty(sortAndFormatTime(response.data.notifications));
+  
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+      toast.add({ severity: 'error', summary: 'Notification Error', 
+        detail: 'Unable to retrieve notifications. Please refresh. If the issue persists, seek support.', life: 3000 });
+    }
+  }  
+  
   // Toggle the event for the component
   const toggleNotification = (event) => {
     opNotification.value.toggle(event);
@@ -19,7 +82,7 @@ export const getUserNotifications = () => {
 
   // To compute the number of unread notifications
   const num_unreadNotifications = computed( () => {
-    return notifications.value.filter(notification => !notification.read).length;
+    return notifications.value.filter(notification => !notification.has_read).length;
   })
 
   // To compute any Dialog component is opened (it show the complete notification)
@@ -29,22 +92,35 @@ export const getUserNotifications = () => {
 
   // To mark single notification read to true (mark as read)
   const markAsRead = (notification_id) => {
+    // Get the notification in array
     const notification = notifications.value.find(item => item.id === notification_id);
-    if(!notification.read){
-      notification.read = true;
+
+    if(!notification.has_read){
+      notification.has_read = true;
+
+      // Get the token
+      const token = store.getters.getToken;
+
+      axios1.put(`notifications/mark-as-read/${notification_id}`,{}, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      }).catch(error => {
+        console.error('Error marking notification as read:',error);
+      })
     }
   }
 
   // To mark single notification read to true (mark as read)
   const markAllAsRead = () => {
     notifications.value.forEach(notification => {
-      if(!notification.read){
-        notification.read = true;
+      if(!notification.has_read){
+        notification.has_read = true;
       }
     });
   }
 
-  return { opNotification, notifications, toggleNotification, num_unreadNotifications, isDialogOpen, markAsRead, markAllAsRead };
+  return { opNotification, notifications, sendGetNotificationRequest, toggleNotification, num_unreadNotifications, isDialogOpen, markAsRead, markAllAsRead };
 }
 
 
