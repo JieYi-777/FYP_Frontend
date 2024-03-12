@@ -1,4 +1,8 @@
 <template>
+
+  <!-- Hide element (not accessible), used for take focus, avoid Dialog component focus on close icon -->
+  <input ref="dialogFocus" class="focus-only" tabindex="-1">
+
   <div v-for="notification in notifications" :key="notification.id">
 
     <!-- The notification list -->
@@ -15,7 +19,7 @@
     </Card>
 
     <!-- To show each full content of the notification -->
-    <Dialog v-model:visible="notification.visible" :draggable="false" modal class="w-2/5">
+    <Dialog v-model:visible="notification.visible" :draggable="false" modal class="w-2/5" @show="handleDialogShow">
 
       <!-- Show the notification title and created date (after formatted) -->
       <template #header>
@@ -43,16 +47,30 @@ import Tag from 'primevue/tag';
 import Panel from 'primevue/panel';
 
 import { truncate } from '../composables/UserNotification';
+import { nextTick, ref } from 'vue';
 
 export default {
   props: ['notifications', 'function'],
   components: { Card, Dialog, Tag, Panel },
-  setup(props, {emit}) {
+  setup(props) {
 
     // Get the markAsRead function from props function object
     const markAsRead = props.function.markAsRead;
 
-    return { truncate, markAsRead }
+    // Ref to the input (focusable)
+    const dialogFocus = ref(null);
+
+    // Set focus to the input when open the Dialog
+    const handleDialogShow = () => {
+      // Set focus to the dialog content after it's shown
+      nextTick(() => {
+        if (dialogFocus.value) {
+          dialogFocus.value.focus();
+        }
+      })
+    }
+
+    return { truncate, markAsRead, dialogFocus, handleDialogShow }
   }
 }
 </script>

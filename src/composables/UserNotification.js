@@ -44,6 +44,9 @@ export const getUserNotifications = () => {
   // Access the toast object
   const toast = useToast();
 
+  // Ref to the input (focusable)
+  const toastFocus = ref(null);
+
   // The overlay panel component reference (Used for notification list)
   const opNotification = ref();
 
@@ -70,8 +73,9 @@ export const getUserNotifications = () => {
   
     } catch (error) {
       console.error('Error fetching notifications:', error);
+      toastFocus.value.focus();
       toast.add({ severity: 'error', summary: 'Notification Error', 
-        detail: 'Unable to retrieve notifications. Please refresh. If the issue persists, seek support.', life: 3000 });
+        detail: 'Unable to retrieve notifications. Please refresh. If the issue persists, seek support.', life: 4000 });
     }
   }  
   
@@ -90,7 +94,7 @@ export const getUserNotifications = () => {
     return notifications.value.some(notification => notification.visible);
   });
 
-  // To mark single notification read to true (mark as read)
+  // To mark single notification read to true (mark as has read)
   const markAsRead = (notification_id) => {
     // Get the notification in array
     const notification = notifications.value.find(item => item.id === notification_id);
@@ -101,26 +105,43 @@ export const getUserNotifications = () => {
       // Get the token
       const token = store.getters.getToken;
 
+      // Send the PUT request to mark a notification as has read
       axios1.put(`notifications/mark-as-read/${notification_id}`,{}, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       }).catch(error => {
         console.error('Error marking notification as read:',error);
+        toastFocus.value.focus();
+        toast.add({ severity: 'error', summary: 'Mark as Read Error', 
+          detail: 'Unable to mark the notification as read. Please try again later.', life: 3000 });
       })
     }
   }
 
-  // To mark single notification read to true (mark as read)
+  // To mark all notifications read to true (mark as has read)
   const markAllAsRead = () => {
     notifications.value.forEach(notification => {
-      if(!notification.has_read){
-        notification.has_read = true;
-      }
+      notification.has_read = true;
     });
+
+    // Get the token
+    const token = store.getters.getToken;
+
+    // Send the PUT request to mark all notifications as has read
+    axios1.put(`notifications/mark-all-as-read`,{}, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    }).catch(error => {
+      console.error('Error marking all notifications as read:',error);
+      toastFocus.value.focus();
+      toast.add({ severity: 'error', summary: 'Mark All as Read Error', 
+        detail: 'Unable to mark all notifications as read. Please try again later.', life: 3000 });
+    })
   }
 
-  return { opNotification, notifications, sendGetNotificationRequest, toggleNotification, num_unreadNotifications, isDialogOpen, markAsRead, markAllAsRead };
+  return { toastFocus, opNotification, notifications, sendGetNotificationRequest, toggleNotification, num_unreadNotifications, isDialogOpen, markAsRead, markAllAsRead };
 }
 
 

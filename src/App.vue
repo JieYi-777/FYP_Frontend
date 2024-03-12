@@ -59,8 +59,11 @@
 
     <!-- Toast to show the error -->
     <Toast position="bottom-right" />
+
+    <!-- Hide element (not accessible), used for take focus, avoid Toast component focus on close icon -->
+    <input ref="toastFocus" class="focus-only" tabindex="-1">
   </div>
-  
+
   <router-view/>
 </template>
 
@@ -76,7 +79,7 @@ import { createNavigationItems } from './composables/NavigationBar';
 import { createUserMenu } from './composables/UserMenu';
 import { getUserNotifications } from './composables/UserNotification';
 import { useRoute } from 'vue-router';
-import { watch } from 'vue';
+import { watch, ref } from 'vue';
 
 
 export default {
@@ -89,7 +92,10 @@ export default {
     // Get the user menu items
     const { userMenu, userMenuItems, toggleUserMenu } = createUserMenu();
 
-    const { opNotification, notifications, sendGetNotificationRequest, toggleNotification, num_unreadNotifications, isDialogOpen, markAsRead, markAllAsRead } = getUserNotifications();
+    // Get the notification data and computed
+    const { toastFocus, opNotification, notifications, 
+    sendGetNotificationRequest, toggleNotification, num_unreadNotifications, 
+    isDialogOpen, markAsRead, markAllAsRead } = getUserNotifications();
 
     // Access the route object
     const route = useRoute();
@@ -104,7 +110,8 @@ export default {
     return {
       navigationItems, 
       userMenuItems, userMenu, toggleUserMenu, 
-      opNotification, notifications, toggleNotification, num_unreadNotifications, isDialogOpen, markAsRead, markAllAsRead
+      toastFocus, opNotification, notifications, toggleNotification, 
+      num_unreadNotifications, isDialogOpen, markAsRead, markAllAsRead,
     };
   }
 }
