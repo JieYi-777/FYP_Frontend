@@ -131,7 +131,7 @@ export default {
           
           // Dispatch the login action to update the token in Vuex
           store.dispatch('login', {token: data.token, username: data.username });
-          toast.add({ severity: 'success', summary: data.message, detail: 'You will be redirected shortly', life: 3000 });
+          toast.add({ severity: 'success', summary: data.message, detail: 'You will be redirected shortly.', life: 3000 });
 
           // Redirect to homepage after 3 seconds
           setTimeout(() => {
@@ -141,7 +141,7 @@ export default {
         }).catch(error => {
           // Check the status and data is exist or not, if exist use the data, else status = 500 and data is the message
           const status = error.response?.status || 500;
-          const data = error.response?.data || { message: 'An error occurred while registering account' };
+          const data = error.response?.data || { message: 'An error occurred while registering account.' };
 
           // Set the warning or error toast message based on the status code
           // Warning means the username or email is incorrect, or password incorrect so cannot login
@@ -149,11 +149,11 @@ export default {
           if (status >= 400 && status < 500) {
             // If the password is incorrect
             if(status == 401) {
-              toast.add({ severity: 'warn', summary: data.message, detail: 'Please verify your password', life: 3000 });
+              toast.add({ severity: 'warn', summary: data.message, detail: 'Please verify your password.', life: 3000 });
             }
             // If the username or email is incorrect, user not found
             else {
-              toast.add({ severity: 'warn', summary: data.message, detail: 'Please verify your username or email', life: 3000 });
+              toast.add({ severity: 'warn', summary: data.message, detail: 'Please verify your username or email.', life: 3000 });
             }
             
           }

@@ -176,7 +176,7 @@ export default {
 
           // Store the token in localStorage and set success toast message
           store.dispatch('login', {token: data.token, username: data.username });
-          toast.add({ severity: 'success', summary: data.message, detail: 'You will be redirected shortly', life: 3000 });
+          toast.add({ severity: 'success', summary: data.message, detail: 'You will be redirected shortly.', life: 3000 });
 
           // Redirect to homepage after 3 seconds
           setTimeout(() => {
@@ -186,7 +186,7 @@ export default {
         }).catch(error =>{
           // Check the status and data is exist or not, if exist use the data, else status = 500 and data is the message
           const status = error.response?.status || 500;
-          const data = error.response?.data || { message: 'An error occurred while registering account' };
+          const data = error.response?.data || { message: 'An error occurred while registering account.' };
 
           // Set the warning or error toast message based on the status code
           // Warning means the username or email is already exist so cannot register
