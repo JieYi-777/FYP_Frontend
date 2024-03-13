@@ -28,8 +28,8 @@
       <template #end>
         <div class="flex items-center gap-x-3.5">
           <!-- Use two same Avatar because the v-badge cannot hide if the value is 0, they can call the overlay panel -->
-          <Avatar v-show="num_unreadNotifications > 0" v-badge="num_unreadNotifications" v-ripple icon="pi pi-bell" shape="circle" size="large" class="bg-blue-100 cursor-pointer hover:bg-blue-200" @click="toggleNotification"/>
-          <Avatar v-show="num_unreadNotifications === 0" v-ripple icon="pi pi-bell" shape="circle" size="large" class="bg-blue-100 cursor-pointer hover:bg-blue-200" @click="toggleNotification"/>
+          <Avatar v-show="num_unreadNotifications > 0" v-badge="num_unreadNotifications" v-ripple icon="pi pi-bell" shape="circle" size="large" class="bg-blue-100 cursor-pointer hover:bg-blue-200 p-ripple overflow-visible" @click="toggleNotification"/>
+          <Avatar v-show="num_unreadNotifications === 0" v-ripple icon="pi pi-bell" shape="circle" size="large" class="p-ripple bg-blue-100 cursor-pointer hover:bg-blue-200" @click="toggleNotification"/>
 
           <!-- Overlay Panel to show the notification list, called by notification Avatar above, 
           it cannot be closed (dismissable = false) if Dialog component is opened (full-content notification) -->
@@ -144,9 +144,5 @@ export default {
 
   .p-tooltip .p-tooltip-text {
     background: #1d4ed8;
-    color: #ffffff;
-    padding: 0.5rem 0.75rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
-    border-radius: 6px;
   }
 </style>
