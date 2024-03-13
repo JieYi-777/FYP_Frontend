@@ -55,7 +55,7 @@
           <TieredMenu ref="userMenu" id="user_menu" :model="userMenuItems" popup />
 
           <Dialog v-model:visible="emailDialogVisible" modal :draggable="false" header="Need Support? Email Us" class="w-2/5">
-            <EmailDialogContent @close="emailDialogVisible = false" />
+            <EmailDialogContent @close="closeEmailDialog" @success="sendSuccess" @error="sendError"/>
           </Dialog>
         </div>
       </template>
@@ -84,6 +84,7 @@ import Dialog from 'primevue/dialog';
 import { createNavigationItems } from './composables/NavigationBar';
 import { createUserMenu } from './composables/UserMenu';
 import { getUserNotifications } from './composables/UserNotification';
+import { sendEmailToast } from './composables/UserEmail';
 import { useRoute } from 'vue-router';
 import { watch, ref } from 'vue';
 
@@ -96,7 +97,7 @@ export default {
     const { navigationItems } = createNavigationItems();
 
     // Get the user menu items
-    const { userMenu, userMenuItems, toggleUserMenu, emailDialogVisible } = createUserMenu();
+    const { userMenu, userMenuItems, toggleUserMenu, emailDialogVisible, closeEmailDialog } = createUserMenu();
 
     // Get the notification data and computed
     const { toastFocus, opNotification, notifications, 
@@ -106,18 +107,21 @@ export default {
     // Access the route object
     const route = useRoute();
 
-    // When the navigtion bar is shown, then retirieve the notification data from database
+    // When the navigtion bar is shown, then retrieve the notification data from database
     watch(route, (newRoute) => {
       if(newRoute.meta.showNavigation){
         sendGetNotificationRequest();
       }
     })
 
+    const { sendSuccess, sendError } = sendEmailToast(closeEmailDialog);
+
     return {
       navigationItems, 
-      userMenuItems, userMenu, toggleUserMenu, emailDialogVisible,
+      userMenuItems, userMenu, toggleUserMenu, emailDialogVisible, closeEmailDialog,
       toastFocus, opNotification, notifications, toggleNotification, 
       num_unreadNotifications, isDialogOpen, markAsRead, markAllAsRead,
+      sendSuccess, sendError
     };
   }
 }

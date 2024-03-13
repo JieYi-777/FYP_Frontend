@@ -47,15 +47,21 @@
       <small class="redText">{{ emailSubject_validationText }}</small>
     </div>
 
+    <!-- Email content/message text area input -->
     <div>
-      <Textarea rows="5" class="w-full" />
+      <Textarea rows="5" class="w-full" v-model="emailContent" placeholder="Enter your content here..." :class="{'p-invalid': emailContent_validationText}"/>
+    </div>
+
+    <!-- Validation respond to email content input -->
+    <div :class="{'text-left mb-3': emailContent_validationText, 'mb-9': !emailContent_validationText}">
+      <small class="redText">{{ emailContent_validationText }}</small>
     </div>
 
   </form>
 
-  <div class="flex justify-content-end gap-2">
+  <div class="flex justify-end gap-2">
     <Button type="button" label="Cancel" severity="secondary" @click="closeDialog"></Button>
-    <Button type="button" label="Save" @click="closeDialog"></Button>
+    <Button type="button" label="Send" @click="sendEmail"></Button>
   </div>
 
 </template>
@@ -72,12 +78,16 @@ import { ref } from 'vue';
 import { useStore } from 'vuex';
 import axios1 from '../axios.service';
 
-import { getUserEmail, emailSubjectValidation } from '../composables/UserEmail';
+import { getUserEmail, emailSubjectValidation, emailContentValidation } from '../composables/UserEmail';
+import { checkValidInput } from '../composables/UserRegisterValidation';
 
 export default {
   components: { Dialog, Button, InputText, InputGroup, InputGroupAddon, Textarea },
-  emits:['close'],
+  emits:['close', 'success', 'error'],
   setup(props, {emit}) {
+
+    // Access the store object
+    const store = useStore();
 
     // To emit the event (close the dialog)
     const closeDialog = () => {
@@ -96,10 +106,59 @@ export default {
     // To get the email subject ref and email subject validation text ref
     const { emailSubject, emailSubject_validationText } = emailSubjectValidation();
 
+    // To get the email content ref and email content validation text ref
+    const { emailContent, emailContent_validationText } = emailContentValidation();
+
+    // First check the validity of inputs, if all valid then send email
+    const sendEmail =  () => {
+      // Check the email subject is empty or not
+      if(!emailSubject.value){
+        emailSubject_validationText.value = 'Please enter your email subject';
+      }
+
+      // Check the email content is empty or not
+      if(!emailContent.value){
+        emailContent_validationText.value = 'Please enter your email content';
+      }
+
+      if(checkValidInput(email.value, email_validationText.value) && checkValidInput(emailSubject.value, emailSubject_validationText.value) && checkValidInput(emailContent.value, emailContent_validationText.value)) {
+        const data = {
+          to: support_email.value,
+          from: email.value,
+          subject: emailSubject.value.trim(),
+          content: emailContent.value.trim()
+        }
+
+        // Get the token
+        const token = store.getters.getToken;
+
+        axios1.post('/email/send-support-email', data, 
+        {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+        }).then(response => {
+          emit('success', response.data.message);
+        }).catch(error => {
+          console.error(error);
+
+          if(error.response.data.message){
+            emit('error', error.response.data.message);
+          }
+          else{
+            emit('error','An error occurred while sending email.');
+          }
+          
+        })
+      }
+    }
+
     return {
       closeDialog, support_email,
       email, email_validationText,
-      emailSubject, emailSubject_validationText
+      emailSubject, emailSubject_validationText,
+      emailContent, emailContent_validationText,
+      sendEmail
     }
   }
 }

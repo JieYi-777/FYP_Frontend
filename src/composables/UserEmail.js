@@ -1,5 +1,6 @@
 import { ref, watch } from 'vue';
 import { useStore } from 'vuex';
+import { useToast } from 'primevue/usetoast';
 import axios1 from '../axios.service';
 
 import { emailValidation } from './UserRegisterValidation';
@@ -47,7 +48,7 @@ export const emailSubjectValidation = () => {
   const emailSubject = ref('');
   const emailSubject_validationText = ref('');
 
-  // To validate the email input
+  // To validate the email subject input
   watch(emailSubject, (newValue) => {
     if (newValue.trim() === '') {
       emailSubject_validationText.value = 'Please enter your email subject';
@@ -71,5 +72,37 @@ export const emailContentValidation = () => {
   const emailContent = ref('');
   const emailContent_validationText = ref('');
 
+  // To validate the email content textarea
+  watch(emailContent, (newValue) => {
+    if (newValue.trim() === '') {
+      emailContent_validationText.value = 'Please enter your email content';
+    }
+    else if (newValue.trim().length > 1000) {
+      emailContent_validationText.value = 'Email content cannot exceed 1000 characters';
+    }
+    else {
+      emailContent_validationText.value = '';
+    }
+  });
 
+  return { emailContent, emailContent_validationText };
+}
+
+// To respond to the event, trigger the toast
+export const sendEmailToast = (closeEmailDialog) => {
+  // Access the toast object
+  const toast = useToast();
+
+  // Create success toast
+  const sendSuccess = (message) => {
+    closeEmailDialog();
+    toast.add({ severity: 'success', summary: 'Email Sent Successfully', detail: message, life: 3000 });
+  }
+
+  const sendError = (message) => {
+    closeEmailDialog();
+    toast.add({ severity: 'error', summary: 'Email Sending Error', detail: message, life: 3000 });
+  }
+
+  return { sendSuccess, sendError };
 }

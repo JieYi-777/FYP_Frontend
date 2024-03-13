@@ -45,5 +45,9 @@ export const createUserMenu = () => {
     userMenu.value.toggle(event);
   };
 
-  return { userMenu, userMenuItems, toggleUserMenu, emailDialogVisible }
+  const closeEmailDialog = () => {
+    emailDialogVisible.value = false;
+  }
+
+  return { userMenu, userMenuItems, toggleUserMenu, emailDialogVisible, closeEmailDialog }
 }
