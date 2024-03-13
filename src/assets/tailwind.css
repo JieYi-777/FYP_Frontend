@@ -33,6 +33,10 @@
   }
 }
 
+.redText {
+  color: #ff0000;
+}
+
 .focus-only {
   position: absolute;
   width: 1px;

@@ -227,8 +227,4 @@ export default {
   #registration_form .p-card-content{
     padding: 0;
   }
-
-  .redText {
-    color: #ff0000;
-  }
 </style>
