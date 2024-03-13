@@ -1,8 +1,16 @@
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { useStore } from 'vuex';
 
 export const createUserMenu = () => {
   // Tiered Menu component reference (Used as user menu)
   const userMenu = ref();
+
+  // Access the router object
+  const router = useRouter();
+
+  // Access the store object
+  const store = useStore();
 
   // The menu items
   const userMenuItems = ref([
@@ -17,9 +25,13 @@ export const createUserMenu = () => {
     {
       separator: true
     },
-    {
+    { // Click, clear the token and username (in localStorage and vuex) then logout (go to login page)
       label: 'Logout',
       icon: 'pi pi-sign-out',
+      command: () => {
+        store.dispatch('logout');
+        router.push({name: 'login'});
+      }
     }
 ]);
 
