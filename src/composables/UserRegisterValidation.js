@@ -28,7 +28,7 @@ export const usernameValidation = ()=>{
 
 export const emailValidation = () => {
 
-  // To reference to the email input element, email value, and email validation element
+  // To reference to the email value, and email validation text
   const email = ref('');
   const email_validationText = ref('');
 
@@ -50,7 +50,7 @@ export const emailValidation = () => {
 
 export const passwordValidation = () => {
 
-  // To reference to the password input element, password value, and password validation element
+  // To reference to the password value, and password validation text
   const password = ref('');
   const password_validationText = ref('');
 
@@ -75,7 +75,7 @@ export const passwordValidation = () => {
 
 export const confirmPasswordValidation = (password, password_validationText) => {
 
-  // To reference to the confirm password input element, confirm password value, and confirm password validation element
+  // To reference to the confirm password value, and confirm password validation text
   const confirmPassword = ref('');
   const confirmPassword_validationText = ref('');
 
