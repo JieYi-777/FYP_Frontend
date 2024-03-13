@@ -53,6 +53,10 @@
           <Avatar v-ripple icon="pi pi-user" shape="circle" size="large" class="p-ripple bg-blue-100 cursor-pointer hover:bg-blue-200" 
             @click="toggleUserMenu" aria-haspopup="true" aria-controls="user_menu"/>
           <TieredMenu ref="userMenu" id="user_menu" :model="userMenuItems" popup />
+
+          <Dialog v-model:visible="emailDialogVisible" modal :draggable="false" header="Need Support? Email Us" class="w-2/5">
+            <EmailDialogContent @close="emailDialogVisible = false" />
+          </Dialog>
         </div>
       </template>
     </Menubar>
@@ -69,11 +73,13 @@
 
 <script>
 import UserNotifications from './components/UserNotifications.vue';
+import EmailDialogContent from './components/EmailDialogContent.vue';
 import Menubar from 'primevue/menubar';
 import Avatar from 'primevue/avatar';
 import TieredMenu from 'primevue/tieredmenu';
 import OverlayPanel from 'primevue/overlaypanel';
 import Toast from 'primevue/toast';
+import Dialog from 'primevue/dialog';
 
 import { createNavigationItems } from './composables/NavigationBar';
 import { createUserMenu } from './composables/UserMenu';
@@ -83,14 +89,14 @@ import { watch, ref } from 'vue';
 
 
 export default {
-  components: { Menubar, Avatar, TieredMenu, OverlayPanel, UserNotifications, Toast },
+  components: { Menubar, Avatar, TieredMenu, OverlayPanel, UserNotifications, Toast, Dialog, EmailDialogContent },
   setup() {
     
     // Get the navigation menu items
     const { navigationItems } = createNavigationItems();
 
     // Get the user menu items
-    const { userMenu, userMenuItems, toggleUserMenu } = createUserMenu();
+    const { userMenu, userMenuItems, toggleUserMenu, emailDialogVisible } = createUserMenu();
 
     // Get the notification data and computed
     const { toastFocus, opNotification, notifications, 
@@ -109,7 +115,7 @@ export default {
 
     return {
       navigationItems, 
-      userMenuItems, userMenu, toggleUserMenu, 
+      userMenuItems, userMenu, toggleUserMenu, emailDialogVisible,
       toastFocus, opNotification, notifications, toggleNotification, 
       num_unreadNotifications, isDialogOpen, markAsRead, markAllAsRead,
     };

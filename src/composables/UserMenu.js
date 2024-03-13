@@ -12,6 +12,8 @@ export const createUserMenu = () => {
   // Access the store object
   const store = useStore();
 
+  const emailDialogVisible = ref(false);
+
   // The menu items
   const userMenuItems = ref([
     {
@@ -20,7 +22,10 @@ export const createUserMenu = () => {
     },
     {
       label: 'Help & Support',
-      icon: 'pi pi-question-circle'
+      icon: 'pi pi-question-circle',
+      command: () => {
+        emailDialogVisible.value = true;
+      }
     },
     {
       separator: true
@@ -40,5 +45,5 @@ export const createUserMenu = () => {
     userMenu.value.toggle(event);
   };
 
-  return { userMenu, userMenuItems, toggleUserMenu }
+  return { userMenu, userMenuItems, toggleUserMenu, emailDialogVisible }
 }
