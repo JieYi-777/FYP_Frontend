@@ -7,37 +7,35 @@ import { emailValidation } from './UserRegisterValidation';
 
 
 // To get the user email
-export const getUserEmail = () => {
+export const getUserEmail = async() => {
 
-  // Get the email and email validation text ref
-  const { email, email_validationText } = emailValidation();
+  // The current email
+  const current_email = ref('');
 
   // Access the store object
   const store = useStore();
+  
+  try {
 
-  const sendGetEmailRequest = async() => {
-    try {
+    // Get the token
+    const token = store.getters.getToken;
 
-      // Get the token
-      const token = store.getters.getToken;
-  
-      // Fetch the user's notifications data
-      const response = await axios1.get('/email', 
-      {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-  
-      // Extract notifications from the response, do some processing and return
-      email.value =  response.data.email;
-  
-    } catch (error) {
-      console.error('Error fetching user email:', error);
-    }
+    // Fetch the user's notifications data
+    const response = await axios1.get('/email', 
+    {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    // Get email
+    current_email.value =  response.data.email;
+
+  } catch (error) {
+    console.error('Error fetching user email:', error);
   }
 
-  return { email, email_validationText, sendGetEmailRequest };
+  return { current_email };
 }
 
 

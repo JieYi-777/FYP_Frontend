@@ -82,7 +82,7 @@ import { useStore } from 'vuex';
 import axios1 from '../axios.service';
 
 import { getUserEmail, emailSubjectValidation, emailContentValidation } from '../composables/UserEmail';
-import { checkValidInput } from '../composables/UserRegisterValidation';
+import { emailValidation, checkValidInput } from '../composables/UserRegisterValidation';
 
 export default {
   components: { Dialog, Button, InputText, InputGroup, InputGroupAddon, Textarea, Loading },
@@ -100,11 +100,24 @@ export default {
     // Ref the developer/support team email
     const support_email = ref('limjieyi777@gmail.com');
 
-    // Get the user email ref and email validation text ref and function to call get email request
-    const { email, email_validationText, sendGetEmailRequest } = getUserEmail();
+    // Get the email ref and email validation text ref and function to call get email request
+    const { email, email_validationText } = emailValidation();
 
-    // To get the user email
-    sendGetEmailRequest();
+    // Define the function
+    const getEmail = async() => {
+      try {
+        // Call getUserEmail to fetch the email value
+        const { current_email } = await getUserEmail();
+
+        // Update the email ref with the fetched value
+        email.value = current_email.value;
+      } catch (error) {
+        console.error('Error fetching user email:', error);
+      }
+    };
+
+    // Call function to get email
+    getEmail();
 
     // To get the email subject ref and email subject validation text ref
     const { emailSubject, emailSubject_validationText } = emailSubjectValidation();

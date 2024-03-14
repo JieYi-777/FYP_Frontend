@@ -12,15 +12,22 @@ export const createUserMenu = () => {
   // Access the store object
   const store = useStore();
 
+  // Control the visibility of the email help support dialog
   const emailDialogVisible = ref(false);
+
+  // Control the visibility of the user profile sidebar
+  const userProfileSidebarVisible = ref(false);
 
   // The menu items
   const userMenuItems = ref([
-    {
+    { // Open the user profile sidebar
       label: 'Profile',
-      icon: 'pi pi-user-edit'
+      icon: 'pi pi-user-edit',
+      command: () => {
+        userProfileSidebarVisible.value = true;
+      }
     },
-    {
+    { // Open the help and support email dialog
       label: 'Help & Support',
       icon: 'pi pi-question-circle',
       command: () => {
@@ -45,9 +52,10 @@ export const createUserMenu = () => {
     userMenu.value.toggle(event);
   };
 
+  // To close the email dialog
   const closeEmailDialog = () => {
     emailDialogVisible.value = false;
   }
 
-  return { userMenu, userMenuItems, toggleUserMenu, emailDialogVisible, closeEmailDialog }
+  return { userMenu, userMenuItems, toggleUserMenu, emailDialogVisible, closeEmailDialog, userProfileSidebarVisible }
 }

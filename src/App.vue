@@ -54,9 +54,15 @@
             @click="toggleUserMenu" aria-haspopup="true" aria-controls="user_menu"/>
           <TieredMenu ref="userMenu" id="user_menu" :model="userMenuItems" popup />
 
+          <!-- Dialog and the email help support form -->
           <Dialog v-model:visible="emailDialogVisible" modal :draggable="false" header="Need Support? Email Us" class="w-2/5">
             <EmailDialogContent @close="closeEmailDialog" @success="sendSuccess" @error="sendError"/>
           </Dialog>
+
+          <!-- User Profile sidebar -->
+          <Sidebar v-model:visible="userProfileSidebarVisible" header="Profile" position="right">
+            <UserProfile />
+          </Sidebar>
         </div>
       </template>
     </Menubar>
@@ -74,12 +80,14 @@
 <script>
 import UserNotifications from './components/UserNotifications.vue';
 import EmailDialogContent from './components/EmailDialogContent.vue';
+import UserProfile from './components/UserProfile.vue';
 import Menubar from 'primevue/menubar';
 import Avatar from 'primevue/avatar';
 import TieredMenu from 'primevue/tieredmenu';
 import OverlayPanel from 'primevue/overlaypanel';
 import Toast from 'primevue/toast';
 import Dialog from 'primevue/dialog';
+import Sidebar from 'primevue/sidebar';
 
 import { createNavigationItems } from './composables/NavigationBar';
 import { createUserMenu } from './composables/UserMenu';
@@ -90,19 +98,27 @@ import { watch, ref } from 'vue';
 
 
 export default {
-  components: { Menubar, Avatar, TieredMenu, OverlayPanel, UserNotifications, Toast, Dialog, EmailDialogContent },
+  components: {
+    Menubar, Avatar, TieredMenu, OverlayPanel, UserNotifications,
+    Toast, Dialog, EmailDialogContent, Sidebar, UserProfile
+  },
   setup() {
     
     // Get the navigation menu items
     const { navigationItems } = createNavigationItems();
 
     // Get the user menu items
-    const { userMenu, userMenuItems, toggleUserMenu, emailDialogVisible, closeEmailDialog } = createUserMenu();
+    const { 
+      userMenu, userMenuItems, toggleUserMenu, 
+      emailDialogVisible, closeEmailDialog, userProfileSidebarVisible 
+    } = createUserMenu();
 
     // Get the notification data and computed
-    const { toastFocus, opNotification, notifications, 
-    sendGetNotificationRequest, toggleNotification, num_unreadNotifications, 
-    isDialogOpen, markAsRead, markAllAsRead } = getUserNotifications();
+    const { 
+      toastFocus, opNotification, notifications, 
+      sendGetNotificationRequest, toggleNotification, num_unreadNotifications, 
+      isDialogOpen, markAsRead, markAllAsRead 
+    } = getUserNotifications();
 
     // Access the route object
     const route = useRoute();
@@ -114,11 +130,13 @@ export default {
       }
     })
 
+    // To handle emit events from the EmailDialogContent components (close dialog and trigger toast)
     const { sendSuccess, sendError } = sendEmailToast(closeEmailDialog);
 
     return {
       navigationItems, 
-      userMenuItems, userMenu, toggleUserMenu, emailDialogVisible, closeEmailDialog,
+      userMenuItems, userMenu, toggleUserMenu, emailDialogVisible, 
+      closeEmailDialog, userProfileSidebarVisible,
       toastFocus, opNotification, notifications, toggleNotification, 
       num_unreadNotifications, isDialogOpen, markAsRead, markAllAsRead,
       sendSuccess, sendError
