@@ -53,8 +53,8 @@ export const emailSubjectValidation = () => {
     if (newValue.trim() === '') {
       emailSubject_validationText.value = 'Please enter your email subject';
     }
-    else if (newValue.trim().length > 40) {
-      emailSubject_validationText.value = 'Email subject cannot exceed 40 characters';
+    else if (newValue.trim().length > 50) {
+      emailSubject_validationText.value = 'Email subject cannot exceed 50 characters';
     }
     else if (!/^[\x20-\x7E]+$/.test(newValue)) {
       emailSubject_validationText.value = 'Invalid characters in email subject';

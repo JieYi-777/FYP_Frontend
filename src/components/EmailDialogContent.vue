@@ -123,7 +123,6 @@ export default {
 
       if(checkValidInput(email.value, email_validationText.value) && checkValidInput(emailSubject.value, emailSubject_validationText.value) && checkValidInput(emailContent.value, emailContent_validationText.value)) {
         const data = {
-          to: support_email.value,
           from: email.value,
           subject: emailSubject.value.trim(),
           content: emailContent.value.trim()
