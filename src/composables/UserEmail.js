@@ -88,7 +88,7 @@ export const emailContentValidation = () => {
   return { emailContent, emailContent_validationText };
 }
 
-// To respond to the event, trigger the toast
+// To respond to the event, close the email Dialog and trigger the toast
 export const sendEmailToast = (closeEmailDialog) => {
   // Access the toast object
   const toast = useToast();

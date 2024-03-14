@@ -1,5 +1,7 @@
 <template>
 
+  <Loading :isLoading="loading" />
+
   <span class="text-slate-500 block mb-5">Please describe your issue or request below. We're here to help!</span>
 
   <form>
@@ -73,6 +75,7 @@ import InputText from 'primevue/inputtext';
 import InputGroup from 'primevue/inputgroup';
 import InputGroupAddon from 'primevue/inputgroupaddon';
 import Textarea from 'primevue/textarea';
+import Loading from './Loading.vue';
 
 import { ref } from 'vue';
 import { useStore } from 'vuex';
@@ -82,7 +85,7 @@ import { getUserEmail, emailSubjectValidation, emailContentValidation } from '..
 import { checkValidInput } from '../composables/UserRegisterValidation';
 
 export default {
-  components: { Dialog, Button, InputText, InputGroup, InputGroupAddon, Textarea },
+  components: { Dialog, Button, InputText, InputGroup, InputGroupAddon, Textarea, Loading },
   emits:['close', 'success', 'error'],
   setup(props, {emit}) {
 
@@ -109,8 +112,11 @@ export default {
     // To get the email content ref and email content validation text ref
     const { emailContent, emailContent_validationText } = emailContentValidation();
 
+    const loading = ref(false);
+
     // First check the validity of inputs, if all valid then send email
     const sendEmail =  () => {
+
       // Check the email subject is empty or not
       if(!emailSubject.value){
         emailSubject_validationText.value = 'Please enter your email subject';
@@ -122,6 +128,10 @@ export default {
       }
 
       if(checkValidInput(email.value, email_validationText.value) && checkValidInput(emailSubject.value, emailSubject_validationText.value) && checkValidInput(emailContent.value, emailContent_validationText.value)) {
+        // Show the loading spinner
+        loading.value = true;
+
+        // Collect data in object
         const data = {
           from: email.value,
           subject: emailSubject.value.trim(),
@@ -137,9 +147,14 @@ export default {
           'Authorization': `Bearer ${token}`
         }
         }).then(response => {
+          // Hide the loading spinner and emit event
+          loading.value = false;
           emit('success', response.data.message);
         }).catch(error => {
           console.error(error);
+
+          // Hide the loading spinner and emit event
+          loading.value = false;
 
           if(error.response.data.message){
             emit('error', error.response.data.message);
@@ -157,7 +172,7 @@ export default {
       email, email_validationText,
       emailSubject, emailSubject_validationText,
       emailContent, emailContent_validationText,
-      sendEmail
+      loading, sendEmail
     }
   }
 }
