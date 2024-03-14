@@ -1,5 +1,6 @@
 <template>
 
+  <!-- The loading spinner -->
   <Loading :isLoading="loading" />
 
   <span class="text-slate-500 block mb-5">Please describe your issue or request below. We're here to help!</span>
@@ -83,6 +84,7 @@ import axios1 from '../axios.service';
 
 import { getUserEmail, emailSubjectValidation, emailContentValidation } from '../composables/UserEmail';
 import { emailValidation, checkValidInput } from '../composables/UserRegisterValidation';
+import { controlLoading } from '../composables/Loading';
 
 export default {
   components: { Dialog, Button, InputText, InputGroup, InputGroupAddon, Textarea, Loading },
@@ -125,10 +127,12 @@ export default {
     // To get the email content ref and email content validation text ref
     const { emailContent, emailContent_validationText } = emailContentValidation();
 
-    const loading = ref(false);
+    // To control the loading spinner
+    const { loading, startLoading, stopLoading } = controlLoading();
 
     // First check the validity of inputs, if all valid then send email
     const sendEmail =  () => {
+      
 
       // Check the email subject is empty or not
       if(!emailSubject.value){
@@ -142,7 +146,7 @@ export default {
 
       if(checkValidInput(email.value, email_validationText.value) && checkValidInput(emailSubject.value, emailSubject_validationText.value) && checkValidInput(emailContent.value, emailContent_validationText.value)) {
         // Show the loading spinner
-        loading.value = true;
+        startLoading();
 
         // Collect data in object
         const data = {
@@ -161,13 +165,13 @@ export default {
         }
         }).then(response => {
           // Hide the loading spinner and emit event
-          loading.value = false;
+          stopLoading();
           emit('success', response.data.message);
         }).catch(error => {
           console.error(error);
 
           // Hide the loading spinner and emit event
-          loading.value = false;
+          stopLoading();
 
           if(error.response.data.message){
             emit('error', error.response.data.message);
