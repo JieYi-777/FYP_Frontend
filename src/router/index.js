@@ -8,6 +8,8 @@ import Expenses from '../views/Expenses.vue';
 import Budgets from '../views/Budgets.vue';
 import NotFound404 from '../views/NotFound404.vue';
 
+
+// Check the validity of the token every time go to the specific pages
 const checkTokenExpiration = async (to, from, next) => {
   // Check if the token exists in the Vuex state
   const token = store.getters.getToken;
@@ -123,6 +125,8 @@ const router = createRouter({
 
 // Check for the metada of each route, if requiresAuth is true, then check the user has token or not,
 // if has, continue, else redirect to login page
+// Note: Only effective when the page is reloading or directly enter the url 
+//       (not apply if manually delete the token, the vuex still remember the old states because no reloading)
 router.beforeEach((to, from, next) => {
 
   if (to.meta.requiresAuth) {
