@@ -441,6 +441,11 @@ export default {
         confirmNewPassword_validationText.value = 'Please confirm your password.';
       }
 
+      // Check the old password and new password are same or not
+      if(oldPassword.value.trim() === newPassword.value.trim()){
+        newPassword_validationText.value = 'The new password cannot be the same as the old password.';
+      }
+
       if(checkValidInput(oldPassword.value, oldPassword_validationText.value) && checkValidInput(newPassword.value, newPassword_validationText.value) && checkValidInput(confirmNewPassword.value, confirmNewPassword_validationText.value)){
         // Start the loading spinner
         startLoading();
