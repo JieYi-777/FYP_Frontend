@@ -10,7 +10,7 @@ export const identifierValidation = () => {
   // To validate the identifier input
   watch(identifier, (newValue) => {
     if (newValue.trim() === '') {
-      identifier_validationText.value = 'Please enter your username or email';
+      identifier_validationText.value = 'Please enter your username or email.';
     }
     else {
       identifier_validationText.value = '';
@@ -30,7 +30,7 @@ export const passwordValidation = () => {
   // To validate the password input
   watch(password, (newValue) => {
     if(newValue.trim() === ''){
-      password_validationText.value = 'Please enter your password';
+      password_validationText.value = 'Please enter your password.';
     }
     else {
       password_validationText.value = '';

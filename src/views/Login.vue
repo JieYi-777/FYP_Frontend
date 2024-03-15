@@ -106,11 +106,11 @@ export default {
 
       // First check for each input, if no value, then showing the validation error message
       if(!identifier.value){
-        identifier_validationText.value = 'Please enter your username or email';
+        identifier_validationText.value = 'Please enter your username or email.';
       }
 
       if(!password.value){
-        password_validationText.value = 'Please enter your password';
+        password_validationText.value = 'Please enter your password.';
       }
 
       // If all inputs valid, send login request

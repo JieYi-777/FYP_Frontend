@@ -144,19 +144,19 @@ export default {
       // First check for each input, if no value, then showing the validation error message
       
       if(!username.value){
-        username_validationText.value = 'Please enter your username';
+        username_validationText.value = 'Please enter your username.';
       }
 
       if(!email.value){
-        email_validationText.value = 'Please enter your email';
+        email_validationText.value = 'Please enter your email.';
       }
 
       if(!password.value){
-      password_validationText.value = 'Please enter your password';
+      password_validationText.value = 'Please enter your password.';
       }
 
       if (!confirmPassword.value) {
-      confirmPassword_validationText.value = 'Please confirm your password';
+      confirmPassword_validationText.value = 'Please confirm your password.';
       }
 
       // If all inputs valid, send registration request

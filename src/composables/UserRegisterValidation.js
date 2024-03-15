@@ -10,13 +10,13 @@ export const usernameValidation = ()=>{
   // To validate the username input
   watch(username, (newValue) => {
     if (newValue.trim() === '') {
-      username_validationText.value = 'Please enter your username';
+      username_validationText.value = 'Please enter your username.';
     }
     else if (newValue.trim().length > 30) {
-      username_validationText.value = 'Username cannot exceed 30 characters';
+      username_validationText.value = 'Username cannot exceed 30 characters.';
     }
     else if (!/^[a-zA-Z0-9_ -]*$/.test(newValue)) {
-      username_validationText.value = 'Username can only contain letters, numbers, underscores, and hyphens';
+      username_validationText.value = 'Username can only contain letters, numbers, underscores, and hyphens.';
     }
     else {
       username_validationText.value = '';
@@ -35,10 +35,10 @@ export const emailValidation = () => {
   // To validate the email input
   watch(email, (newValue) => {
     if (newValue.trim() === '') {
-      email_validationText.value = 'Please enter your email';
+      email_validationText.value = 'Please enter your email.';
     }
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newValue)) {
-      email_validationText.value = 'Invalid email format';
+      email_validationText.value = 'Invalid email format.';
     }
     else {
       email_validationText.value = '';
@@ -57,13 +57,13 @@ export const passwordValidation = () => {
   // To validate the password input
   watch(password, (newValue) => {
     if(newValue.trim() === ''){
-      password_validationText.value = 'Please enter your password';
+      password_validationText.value = 'Please enter your password.';
     }
     else if (newValue.length < 8) {
-      password_validationText.value =  'Password must be at least 8 characters long';
+      password_validationText.value =  'Password must be at least 8 characters long.';
     }
     else if (!/[A-Z]/.test(newValue) || !/[a-z]/.test(newValue) || !/[0-9]/.test(newValue) || !/[@#$%^&*()\-_=+\[\]{}|;:'",.<>\/?!]/.test(newValue)) {
-      password_validationText.value = 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character';
+      password_validationText.value = 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.';
     }
     else{
       password_validationText.value = '';
@@ -82,13 +82,13 @@ export const confirmPasswordValidation = (password, password_validationText) => 
   // To validate the confirm password and password inputs when there is a change to confirm password
   watch(confirmPassword, (newConfirmPasswordValue) => {
     if(password.value.trim() === '') {
-      password_validationText.value = 'Please enter your password';
+      password_validationText.value = 'Please enter your password.';
     }
     else if (newConfirmPasswordValue.trim() === '') {
-      confirmPassword_validationText.value = 'Please confirm your password';
+      confirmPassword_validationText.value = 'Please confirm your password.';
     }
     else if (newConfirmPasswordValue !== password.value) {
-      confirmPassword_validationText.value = 'Passwords do not match';
+      confirmPassword_validationText.value = 'Passwords do not match.';
     }
     else{
       confirmPassword_validationText.value = '';
@@ -101,7 +101,7 @@ export const confirmPasswordValidation = (password, password_validationText) => 
       confirmPassword_validationText.value = '';
     }
     else if(confirmPassword.value && newPasswordValue !== confirmPassword.value) {
-      confirmPassword_validationText.value = 'Passwords do not match';
+      confirmPassword_validationText.value = 'Passwords do not match.';
     }
     else{
       confirmPassword_validationText.value = '';

@@ -136,12 +136,12 @@ export default {
 
       // Check the email subject is empty or not
       if(!emailSubject.value){
-        emailSubject_validationText.value = 'Please enter your email subject';
+        emailSubject_validationText.value = 'Please enter your email subject.';
       }
 
       // Check the email content is empty or not
       if(!emailContent.value){
-        emailContent_validationText.value = 'Please enter your email content';
+        emailContent_validationText.value = 'Please enter your email content.';
       }
 
       if(checkValidInput(email.value, email_validationText.value) && checkValidInput(emailSubject.value, emailSubject_validationText.value) && checkValidInput(emailContent.value, emailContent_validationText.value)) {

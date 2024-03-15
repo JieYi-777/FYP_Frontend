@@ -49,13 +49,13 @@ export const emailSubjectValidation = () => {
   // To validate the email subject input
   watch(emailSubject, (newValue) => {
     if (newValue.trim() === '') {
-      emailSubject_validationText.value = 'Please enter your email subject';
+      emailSubject_validationText.value = 'Please enter your email subject.';
     }
     else if (newValue.trim().length > 50) {
-      emailSubject_validationText.value = 'Email subject cannot exceed 50 characters';
+      emailSubject_validationText.value = 'Email subject cannot exceed 50 characters.';
     }
     else if (!/^[\x20-\x7E]+$/.test(newValue)) {
-      emailSubject_validationText.value = 'Invalid characters in email subject';
+      emailSubject_validationText.value = 'Invalid characters in email subject.';
     }
     else {
       emailSubject_validationText.value = '';
@@ -73,10 +73,10 @@ export const emailContentValidation = () => {
   // To validate the email content textarea
   watch(emailContent, (newValue) => {
     if (newValue.trim() === '') {
-      emailContent_validationText.value = 'Please enter your email content';
+      emailContent_validationText.value = 'Please enter your email content.';
     }
     else if (newValue.trim().length > 1000) {
-      emailContent_validationText.value = 'Email content cannot exceed 1000 characters';
+      emailContent_validationText.value = 'Email content cannot exceed 1000 characters.';
     }
     else {
       emailContent_validationText.value = '';

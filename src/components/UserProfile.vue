@@ -131,7 +131,7 @@ export default {
     const { current_username } = getUsername();
 
     // To get the new username ref and validation text ref
-    const { username: newUsername, username_validationText: newUsername_validationText } =usernameValidation();
+    const { username: newUsername, username_validationText: newUsername_validationText } = usernameValidation();
 
     // To control the visibility of the Edit Username Dialog
     const { editUsername_visible, open_EditUsername, close_EditUsername } = controlEditUsernameDialog();
@@ -171,7 +171,7 @@ export default {
     const sendEditUsername = () => {
       // Check the new username has value or not
       if(!newUsername.value){
-        newUsername_validationText.value = 'Please enter your username';
+        newUsername_validationText.value = 'Please enter your username.';
       }
 
       if(checkValidInput(newUsername.value, newUsername_validationText.value)){
