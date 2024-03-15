@@ -100,19 +100,39 @@ export const newEmailValidation = (current_email) => {
 // To control the visible of the Edit Email Dialog
 export const controlEditEmailDialog = () => {
 
-  // The Edit Username Dialog ref
+  // The Edit Email Dialog ref
   const editEmail_visible = ref(false);
 
-  // To open the Edit Username Dialog
+  // To open the Edit Email Dialog
   const open_EditEmail = () => {
     editEmail_visible.value = true;
   }
 
-  // To close the Edit Username Dialog
+  // To close the Edit Email Dialog
   const close_EditEmail = () => {
     editEmail_visible.value = false;
   }
 
   return { editEmail_visible, open_EditEmail, close_EditEmail };
+
+}
+
+// To control the visible of the Change Password Dialog
+export const controlChangePasswordDialog = () => {
+
+  // The Change Password Dialog ref
+  const changePassword_visible = ref(false);
+
+  // To open the Change Password Dialog
+  const open_ChangePassword = () => {
+    changePassword_visible.value = true;
+  }
+
+  // To close the Change Password Dialog
+  const close_ChangePassword = () => {
+    changePassword_visible.value = false;
+  }
+
+  return { changePassword_visible, open_ChangePassword, close_ChangePassword };
 
 }

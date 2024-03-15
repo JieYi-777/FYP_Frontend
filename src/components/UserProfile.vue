@@ -26,7 +26,7 @@
   <!-- The new username dialog -->
   <!-- Because the new username input and validation text cannot clear, so need to clear when dialog is closed -->
   <Dialog v-model:visible="editUsername_visible" modal :draggable="false" 
-    header="Edit Username" class="small-dialog" @hide="clearNewUsername" @after-hide="clearNewUsernameValidationText">
+    header="Update Username" class="small-dialog" @hide="clearNewUsername" @after-hide="clearNewUsernameValidationText">
     <!-- New username input -->
     <div>
       <InputGroup>
@@ -68,7 +68,7 @@
 
   <!-- The new email dialog -->
   <Dialog v-model:visible="editEmail_visible" modal :draggable="false" 
-    header="Edit Email" class="small-dialog" @hide="clearNewEmail" @after-hide="clearNewEmailValidationText">
+    header="Update Email" class="small-dialog" @hide="clearNewEmail" @after-hide="clearNewEmailValidationText">
     <!-- New email input -->
     <div>
       <InputGroup>
@@ -103,8 +103,66 @@
     <div class="profile_fieldset_content">
       <span>*******</span>
 
-      <Button icon="pi pi-key" size="small" v-tooltip.right="'Change Password'"/>
+      <Button icon="pi pi-key" size="small" v-tooltip.right="'Change Password'" @click="open_ChangePassword"/>
     </div>
+
+    <!-- The new password dialog -->
+  <Dialog v-model:visible="changePassword_visible" modal :draggable="false" 
+    header="Change Password" class="small-dialog" @hide="clearPassword" @after-hide="clearPasswordValidationText">
+
+    <!-- Old password input -->
+    <div>
+      <InputGroup>
+        <InputGroupAddon>
+          <i class="pi pi-lock"></i>
+        </InputGroupAddon>
+
+        <Password placeholder="Old Password" v-model="oldPassword" :feedback="false" :class="{'p-invalid': oldPassword_validationText}"/>
+      </InputGroup>
+    </div>
+
+    <!-- Validation respond to old password input -->
+    <div :class="{'text-left mb-3': oldPassword_validationText, 'mb-9': !oldPassword_validationText}">
+      <small class="redText">{{ oldPassword_validationText }}</small>
+    </div>
+
+    <!-- New password input -->
+    <div>
+      <InputGroup>
+        <InputGroupAddon>
+          <i class="pi pi-lock"></i>
+        </InputGroupAddon>
+
+        <Password placeholder="New Password" v-model="newPassword" :feedback="false" :class="{'p-invalid': newPassword_validationText}"/>
+      </InputGroup>
+    </div>
+
+    <!-- Validation respond to new password input -->
+    <div :class="{'text-left mb-3': newPassword_validationText, 'mb-9': !newPassword_validationText}">
+      <small class="redText">{{ newPassword_validationText }}</small>
+    </div>
+
+    <!-- Confirm new password input -->
+    <div>
+      <InputGroup>
+        <InputGroupAddon>
+          <i class="pi pi-lock"></i>
+        </InputGroupAddon>
+
+        <Password placeholder="Confirm New Password" v-model="confirmNewPassword" :feedback="false" :class="{'p-invalid': confirmNewPassword_validationText}"/>
+      </InputGroup>
+    </div>
+
+    <!-- Validation respond to confirm new password input -->
+    <div :class="{'text-left mb-3': confirmNewPassword_validationText, 'mb-9': !confirmNewPassword_validationText}">
+      <small class="redText">{{ confirmNewPassword_validationText }}</small>
+    </div>
+
+    <div class="flex justify-end gap-2">
+      <Button type="button" label="Cancel" severity="secondary" @click="close_ChangePassword"></Button>
+      <Button type="button" label="Save" @click="sendChangePassword"></Button>
+    </div>
+  </Dialog>
     
   </Fieldset>
 
@@ -138,11 +196,12 @@ import InputSwitch from 'primevue/inputswitch';
 import InputGroup from 'primevue/inputgroup';
 import InputGroupAddon from 'primevue/inputgroupaddon';
 import Toast from 'primevue/toast';
+import Password from 'primevue/password';
 
 import { clearValue, getUsername, newUsernameValidation,controlEditUsernameDialog, 
-newEmailValidation, controlEditEmailDialog } from '../composables/Profile';
+newEmailValidation, controlEditEmailDialog, controlChangePasswordDialog } from '../composables/Profile';
 import { getUserEmail } from '../composables/UserEmail';
-import { checkValidInput } from '../composables/UserRegisterValidation';
+import { checkValidInput, passwordValidation, confirmPasswordValidation } from '../composables/UserRegisterValidation';
 import { controlLoading } from '../composables/Loading';
 import { ref } from 'vue';
 import { useStore } from 'vuex';
@@ -150,7 +209,7 @@ import { useToast } from 'primevue/usetoast';
 import axios1 from '../axios.service';
 
 export default {
-  components: { Loading, Fieldset, Dialog, Button, InputText, Avatar, InputSwitch, InputGroup, InputGroupAddon, Toast },
+  components: { Loading, Fieldset, Dialog, Button, InputText, Avatar, InputSwitch, InputGroup, InputGroupAddon, Toast, Password },
   setup() {
 
     // To control the loading spinner
@@ -202,13 +261,13 @@ export default {
         // Get the token
         const token = store.getters.getToken;
 
-        axios1.put('/user-profile/edit-username', data, 
+        axios1.put('/user-profile/update-username', data, 
         {
         headers: {
           'Authorization': `Bearer ${token}`
         }
         }).then(response => {
-          // Hide the loading spinner and emit event
+          // Hide the loading spinner
           stopLoading();
 
           // Close the Dialog
@@ -227,7 +286,7 @@ export default {
 
           console.error(error);
 
-          // Hide the loading spinner and emit event
+          // Hide the loading spinner
           stopLoading();
 
           if (status === 400) {
@@ -298,13 +357,13 @@ export default {
         // Get the token
         const token = store.getters.getToken;
 
-        axios1.put('/user-profile/edit-email', data, 
+        axios1.put('/user-profile/update-email', data, 
         {
         headers: {
           'Authorization': `Bearer ${token}`
         }
         }).then(response => {
-          // Hide the loading spinner and emit event
+          // Hide the loading spinner
           stopLoading();
 
           // Close the Dialog
@@ -322,7 +381,7 @@ export default {
 
           console.error(error);
 
-          // Hide the loading spinner and emit event
+          // Hide the loading spinner
           stopLoading();
 
           if (status === 400) {
@@ -330,6 +389,100 @@ export default {
           }
           else if (status === 404) {
             toast.add({ severity: 'error', summary: data.message, detail: 'Cannot update email. Please check with us for assistance.', life: 3000 });
+          }
+          else {
+            toast.add({ severity: 'error', summary: 'Error', detail: data.message, life: 3000 });
+          }
+        })
+      }
+    }
+    // ---------------------------------------New Password related---------------------------------------------------------
+
+    // To get the old password ref and old password validation text ref
+    const { password: oldPassword, password_validationText: oldPassword_validationText } = passwordValidation();
+
+    // To get the new password ref and new password validation text ref
+    const { password: newPassword, password_validationText: newPassword_validationText } = passwordValidation();
+
+    // To get the confirm new password ref and confirm new password validation text ref
+    const { confirmPassword: confirmNewPassword, confirmPassword_validationText: confirmNewPassword_validationText } = confirmPasswordValidation(newPassword, newPassword_validationText);
+
+    // To control the Change Password Dialog
+    const { changePassword_visible, open_ChangePassword, close_ChangePassword } = controlChangePasswordDialog();
+
+    // To clear the all password inputs
+    const clearPassword = () => {
+      clearValue(oldPassword);
+      clearValue(newPassword);
+      clearValue(confirmNewPassword);
+    }
+
+    // To clear the all password validation text
+    const clearPasswordValidationText = () => {
+      clearValue(oldPassword_validationText);
+      clearValue(newPassword_validationText);
+      clearValue(confirmNewPassword_validationText);
+    }
+
+    // To send the change password request
+    const sendChangePassword = () => {
+      // Check the old password has value or not
+      if(!oldPassword.value){
+        oldPassword_validationText.value = 'Please enter your password.';
+      }
+
+      // Check the new password has value or not
+      if(!newPassword.value){
+        newPassword_validationText.value = 'Please enter your password.';
+      }
+
+      // Check the confirm new password has value or not
+      if(!confirmNewPassword.value){
+        confirmNewPassword_validationText.value = 'Please confirm your password.';
+      }
+
+      if(checkValidInput(oldPassword.value, oldPassword_validationText.value) && checkValidInput(newPassword.value, newPassword_validationText.value) && checkValidInput(confirmNewPassword.value, confirmNewPassword_validationText.value)){
+        // Start the loading spinner
+        startLoading();
+
+        // Collect data in object
+        const data = {
+          old_password: oldPassword.value.trim(),
+          new_password: newPassword.value.trim()
+        }
+
+        // Get the token
+        const token = store.getters.getToken;
+
+        axios1.put('/user-profile/change-password', data, 
+        {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+        }).then(response => {
+          // Hide the loading spinner
+          stopLoading();
+
+          // Close the Dialog
+          close_ChangePassword();
+
+          // Show the toast
+          toast.add({ severity: 'success', summary: 'Password Changed', detail: response.data.message, life: 3000 });
+        }).catch(error => {
+          // Check the status and data is exist or not, if exist use the data, else status = 500 and data is the message
+          const status = error.response?.status || 500;
+          const data = error.response.data.message? error.response.data : { message: 'An error occurred while changing password.' };
+
+          console.error(error);
+
+          // Hide the loading spinner and emit event
+          stopLoading();
+
+          if (status === 401) {
+            toast.add({ severity: 'warn', summary: data.message, detail: 'Please check the old password.', life: 3000 });
+          }
+          else if (status === 404) {
+            toast.add({ severity: 'error', summary: data.message, detail: 'Cannot change password. Please check with us for assistance.', life: 3000 });
           }
           else {
             toast.add({ severity: 'error', summary: 'Error', detail: data.message, life: 3000 });
@@ -349,6 +502,8 @@ export default {
       open_EditUsername, close_EditUsername, sendEditUsername, clearNewUsername, clearNewUsernameValidationText,
       current_email, newEmail, newEmail_validationText, editEmail_visible, open_EditEmail, close_EditEmail,
       clearNewEmail, clearNewEmailValidationText, sendEditEmail,
+      oldPassword, oldPassword_validationText, newPassword, newPassword_validationText,  confirmNewPassword, confirmNewPassword_validationText,
+      changePassword_visible, open_ChangePassword, close_ChangePassword, clearPassword, clearPasswordValidationText, sendChangePassword,
       notification_check
     };
     
