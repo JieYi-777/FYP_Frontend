@@ -93,7 +93,7 @@
     </Card>
 
     <!-- Toast respond to button click -->
-    <Toast position="bottom-right" />
+    <Toast position="bottom-right" class="toast"/>
   </div>
 </template>
 

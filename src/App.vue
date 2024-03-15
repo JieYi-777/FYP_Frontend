@@ -68,7 +68,7 @@
     </Menubar>
 
     <!-- Toast -->
-    <Toast position="bottom-right" />
+    <Toast position="bottom-right" class="toast" />
 
     <!-- Hide element (not accessible), used for take focus, avoid Toast component focus on close icon -->
     <input ref="toastFocus" class="focus-only" tabindex="-1">

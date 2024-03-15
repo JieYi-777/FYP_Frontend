@@ -48,3 +48,7 @@
   white-space: nowrap;
   border-width: 0;
 }
+
+.toast {
+  @apply w-4/5 sm:w-3/5 md:w-2/5 lg:w-96
+}

@@ -4,7 +4,7 @@
   <Loading :isLoading="loading" />
 
   <!-- Toast -->
-  <Toast position="bottom-right" />
+  <Toast position="bottom-right" class="toast" />
   
   <!-- The username field -->
   <Fieldset class="profile_fieldset">
