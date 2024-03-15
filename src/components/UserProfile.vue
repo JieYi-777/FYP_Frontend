@@ -177,7 +177,8 @@
     </template>
     
     <div class="profile_fieldset_content">
-      <InputSwitch v-model="notification_check" />
+      <InputSwitch v-model="notification_check" @click="confirm1($event)"/>
+      <ConfirmPopup></ConfirmPopup>
     </div>
     
   </Fieldset>
@@ -197,19 +198,22 @@ import InputGroup from 'primevue/inputgroup';
 import InputGroupAddon from 'primevue/inputgroupaddon';
 import Toast from 'primevue/toast';
 import Password from 'primevue/password';
+import ConfirmPopup from 'primevue/confirmpopup';
 
 import { clearValue, getUsername, newUsernameValidation,controlEditUsernameDialog, 
-newEmailValidation, controlEditEmailDialog, controlChangePasswordDialog } from '../composables/Profile';
+newEmailValidation, controlEditEmailDialog, controlChangePasswordDialog, getUserNotificationEnabled } from '../composables/Profile';
 import { getUserEmail } from '../composables/UserEmail';
 import { checkValidInput, passwordValidation, confirmPasswordValidation } from '../composables/UserRegisterValidation';
 import { controlLoading } from '../composables/Loading';
 import { ref } from 'vue';
 import { useStore } from 'vuex';
 import { useToast } from 'primevue/usetoast';
+import { useConfirm } from "primevue/useconfirm";
 import axios1 from '../axios.service';
 
 export default {
-  components: { Loading, Fieldset, Dialog, Button, InputText, Avatar, InputSwitch, InputGroup, InputGroupAddon, Toast, Password },
+  components: { Loading, Fieldset, Dialog, Button, InputText, Avatar, 
+    InputSwitch, InputGroup, InputGroupAddon, Toast, Password, ConfirmPopup },
   setup() {
 
     // To control the loading spinner
@@ -220,6 +224,26 @@ export default {
 
     // Access the toast object
     const toast = useToast();
+
+    const confirm = useConfirm();
+
+    const confirm1 = (event) => {
+    confirm.require({
+        target: event.currentTarget,
+        message: 'Are you sure you want to proceed?',
+        icon: 'pi pi-exclamation-triangle',
+        rejectClass: 'p-button-secondary p-button-sm',
+        acceptClass: 'p-button-sm',
+        rejectLabel: 'Cancel',
+        acceptLabel: 'Save',
+        accept: () => {
+            toast.add({ severity: 'info', summary: 'Confirmed', detail: 'You have accepted', life: 3000 });
+        },
+        reject: () => {
+            toast.add({ severity: 'error', summary: 'Rejected', detail: 'You have rejected', life: 3000 });
+        }
+    });
+};
 
     // ---------------------------------------New Username Related------------------------------------------------------
 
@@ -501,6 +525,20 @@ export default {
     // The notification check ref
     const notification_check = ref(true);
 
+    const getNotificationChecked = async() => {
+      try {
+        // Call getUserNotificationEnabled to get the user notification enabled status
+        const { notification_enabled } = await getUserNotificationEnabled();
+
+        notification_check.value = notification_enabled.value;
+      } catch (error) {
+        console.error('Error getting user notification enabled status:', error);
+      }
+    };
+
+    // Call the function
+    getNotificationChecked();
+
     return {
       loading,
       current_username, newUsername, newUsername_validationText, editUsername_visible, 
@@ -509,7 +547,7 @@ export default {
       clearNewEmail, clearNewEmailValidationText, sendEditEmail,
       oldPassword, oldPassword_validationText, newPassword, newPassword_validationText,  confirmNewPassword, confirmNewPassword_validationText,
       changePassword_visible, open_ChangePassword, close_ChangePassword, clearPassword, clearPasswordValidationText, sendChangePassword,
-      notification_check
+      notification_check, confirm1
     };
     
   }

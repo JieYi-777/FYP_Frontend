@@ -1,3 +1,4 @@
+import axios1 from '../axios.service';
 import { ref, watch } from "vue";
 import { useStore } from "vuex";
 
@@ -135,4 +136,36 @@ export const controlChangePasswordDialog = () => {
 
   return { changePassword_visible, open_ChangePassword, close_ChangePassword };
 
+}
+
+// To check the user os enable the predicted overbudget email notification
+export const getUserNotificationEnabled = async() => {
+
+  // The notification enable check
+  const notification_enabled = ref(true);
+
+  // Access the store object
+  const store = useStore();
+  
+  try {
+
+    // Get the token
+    const token = store.getters.getToken;
+
+    // Fetch the user's notifications data
+    const response = await axios1.get('/user-profile/notification-enable-check', 
+    {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    // Get email
+    notification_enabled.value =  response.data.notification_enabled;
+
+  } catch (error) {
+    console.error('Error getting user notification enabled status:', error);
+  }
+
+  return { notification_enabled };
 }
