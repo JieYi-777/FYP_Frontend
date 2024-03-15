@@ -214,7 +214,7 @@ export default {
           // Close the Dialog
           close_EditUsername();
 
-          // To update the username in profiel and vuex
+          // To update the username in profile and vuex
           current_username.value = data.new_username;
           store.commit('setUsername', data.new_username);
 
@@ -269,19 +269,19 @@ export default {
     // To control the visibility of the edit email dialog
     const { editEmail_visible, open_EditEmail, close_EditEmail } = controlEditEmailDialog();
 
-    // To clear the new username input
+    // To clear the new email input
     const clearNewEmail = () => {
       clearValue(newEmail);
     }
 
-    // To clear the new username validation text
+    // To clear the new email validation text
     const clearNewEmailValidationText = () => {
       clearValue(newEmail_validationText);
     }
 
     // To send the edit email request
     const sendEditEmail = () => {
-      // Check the new username has value or not
+      // Check the new email has value or not
       if(!newEmail.value){
         newEmail_validationText.value = 'Please enter your email.';
       }
@@ -310,7 +310,7 @@ export default {
           // Close the Dialog
           close_EditEmail();
 
-          // To update the username in profiel and vuex
+          // To update the email in profile
           current_email.value = data.new_email;
 
           // Show the toast
