@@ -57,13 +57,18 @@
 }
 
 
-/* Set for the responsive dialog */
+/* Set for the responsive dialog (large dialog) */
 .dialog {
-  @apply w-4/5 sm:w-3/5 md:w-3/5 lg:w-2/5
+  @apply w-4/5 sm:w-3/5 md:w-3/5 lg:w-2/5;
 }
 
 
 /* Set for the responsive sidebar */
 .sidebar {
-  @apply w-4/5 sm:w-3/5 md:w-2/5 lg:w-80
+  @apply w-4/5 sm:w-3/5 md:w-2/5 lg:w-80;
+}
+
+/* Set for the small dialog (input dialog) */
+.small-dialog {
+  @apply w-4/5 sm:w-3/5 md:w-2/5 lg:w-25rem;
 }

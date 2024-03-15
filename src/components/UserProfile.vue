@@ -25,7 +25,7 @@
 
   <!-- Because the new username input and validation text cannot clear, so need to clear when dialog is closed -->
   <Dialog v-model:visible="editUsername_visible" modal :draggable="false" 
-    header="Edit Username" style="width:25rem;" @hide="clearNewUsername" @after-hide="clearNewUsernameValidationText">
+    header="Edit Username" class="small-dialog" @hide="clearNewUsername" @after-hide="clearNewUsernameValidationText">
     <!-- New username input -->
     <div>
       <InputGroup>
