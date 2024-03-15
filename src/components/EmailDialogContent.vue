@@ -171,7 +171,7 @@ export default {
           emit('success', response.data.message);
         }).catch(error => {
           // Try to access the error response data, else add data
-          const data = error.response.data.message? error.response.data.message : { message: 'An error occurred while sending email.' };
+          const data = error.response.data.message? error.response.data : { message: 'An error occurred while sending email.' };
 
           console.error(error);
 

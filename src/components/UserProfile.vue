@@ -215,8 +215,7 @@ export default {
         }).catch(error => {
           // Check the status and data is exist or not, if exist use the data, else status = 500 and data is the message
           const status = error.response?.status || 500;
-          const data = error.response?.data || { message: 'An error occurred while updating username.' };
-
+          const data = error.response.data.message? error.response.data : { message: 'An error occurred while updating username.' };
 
           console.error(error);
 
