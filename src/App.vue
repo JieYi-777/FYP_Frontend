@@ -67,7 +67,7 @@
       </template>
     </Menubar>
 
-    <!-- Toast to show the error -->
+    <!-- Toast -->
     <Toast position="bottom-right" />
 
     <!-- Hide element (not accessible), used for take focus, avoid Toast component focus on close icon -->

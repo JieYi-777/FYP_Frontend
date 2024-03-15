@@ -2,6 +2,9 @@
 
   <!-- The loading spinner -->
   <Loading :isLoading="loading" />
+
+  <!-- Toast -->
+  <Toast position="bottom-right" />
   
   <!-- The username field -->
   <Fieldset class="profile_fieldset">
@@ -108,30 +111,35 @@ import Avatar from 'primevue/avatar';
 import InputSwitch from 'primevue/inputswitch';
 import InputGroup from 'primevue/inputgroup';
 import InputGroupAddon from 'primevue/inputgroupaddon';
+import Toast from 'primevue/toast';
 
-import { getUsername, clearNewUsername, controlEditUsernameDialog, clearValue } from '../composables/Profile';
+import { clearValue, getUsername, newUsernameValidation, controlEditUsernameDialog } from '../composables/Profile';
 import { getUserEmail } from '../composables/UserEmail';
-import { usernameValidation, checkValidInput } from '../composables/UserRegisterValidation';
+import { checkValidInput } from '../composables/UserRegisterValidation';
 import { controlLoading } from '../composables/Loading';
 import { ref } from 'vue';
 import { useStore } from 'vuex';
+import { useToast } from 'primevue/usetoast';
 import axios1 from '../axios.service';
 
 export default {
-  components: { Loading, Fieldset, Dialog, Button, InputText, Avatar, InputSwitch, InputGroup, InputGroupAddon },
+  components: { Loading, Fieldset, Dialog, Button, InputText, Avatar, InputSwitch, InputGroup, InputGroupAddon, Toast },
   setup() {
 
     // To control the loading spinner
     const { loading, startLoading, stopLoading } = controlLoading();
 
-
+    // Access the store object
     const store = useStore();
+
+    // Access the toast object
+    const toast = useToast();
 
     // To get the username ref
     const { current_username } = getUsername();
 
     // To get the new username ref and validation text ref
-    const { username: newUsername, username_validationText: newUsername_validationText } = usernameValidation();
+    const { newUsername, newUsername_validationText } = newUsernameValidation(current_username);
 
     // To control the visibility of the Edit Username Dialog
     const { editUsername_visible, open_EditUsername, close_EditUsername } = controlEditUsernameDialog();
@@ -186,7 +194,45 @@ export default {
         // Get the token
         const token = store.getters.getToken;
 
-        axios1.put('')
+        axios1.put('/user-profile/edit-username', data, 
+        {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+        }).then(response => {
+          // Hide the loading spinner and emit event
+          stopLoading();
+
+          // Close the Dialog
+          close_EditUsername();
+
+          // To update the username in profiel and vuex
+          current_username.value = data.new_username;
+          store.commit('setUsername', data.new_username);
+
+          // Show the toast
+          toast.add({ severity: 'success', summary: 'Username Updated', detail: response.data.message, life: 3000 });
+        }).catch(error => {
+          // Check the status and data is exist or not, if exist use the data, else status = 500 and data is the message
+          const status = error.response?.status || 500;
+          const data = error.response?.data || { message: 'An error occurred while updating username.' };
+
+
+          console.error(error);
+
+          // Hide the loading spinner and emit event
+          stopLoading();
+
+          if (status === 400) {
+            toast.add({ severity: 'warn', summary: data.message, detail: 'Please choose a different username.', life: 3000 });
+          }
+          else if (status === 404) {
+            toast.add({ severity: 'error', summary: data.message, detail: 'Cannot update username. Please check with us for assistance.', life: 3000 });
+          }
+          else {
+            toast.add({ severity: 'error', summary: 'Error', detail: data.message, life: 3000 });
+          }
+        })
       }
     }
 

@@ -21,16 +21,34 @@ export const getUsername = () => {
 }
 
 // To check the new username same to the curren username or not
-export const checkNewOldUsername = (oldUsername_ref, newUsername_ref, newUsername_validationText_ref) => {
-  watch(newUsername_ref, (newUsername_value) => {
-    if(newUsername_value.trim() === oldUsername_ref.value){
-      newUsername_validationText_ref.value = 'New username must be different from the current username. Please choose a different username.';
+// To ref the new username and new username validate text
+export const newUsernameValidation = (current_username)=>{
+
+  // To reference to the username value and username validation text
+  const newUsername = ref('');
+  const newUsername_validationText = ref('');
+
+  // To validate the username input
+  watch(newUsername, (newValue) => {
+    if (newValue.trim() === '') {
+      newUsername_validationText.value = 'Please enter your username.';
     }
-    else{
-      newUsername_validationText_ref.value = '';
+    else if(newValue.trim().toLowerCase() === current_username.value.toLowerCase()){
+      newUsername_validationText.value = 'New username must be different from the current username. Please choose a different username.';
     }
-  })
-}
+    else if (newValue.trim().length > 30) {
+      newUsername_validationText.value = 'Username cannot exceed 30 characters.';
+    }
+    else if (!/^[a-zA-Z0-9_ -]*$/.test(newValue)) {
+      newUsername_validationText.value = 'Username can only contain letters, numbers, underscores, and hyphens.';
+    }
+    else {
+      newUsername_validationText.value = '';
+    }
+  });
+
+  return { newUsername, newUsername_validationText };
+};
 
 // To control the visible of the Edit Username Dialog
 export const controlEditUsernameDialog = () => {
