@@ -166,19 +166,20 @@ export default {
         }).then(response => {
           // Hide the loading spinner and emit event
           stopLoading();
+
+          // Emit the event with data
           emit('success', response.data.message);
         }).catch(error => {
+          // Try to access the error response data, else add data
+          const data = error.response?.data || { message: 'An error occurred while sending email.' };
+
           console.error(error);
 
           // Hide the loading spinner and emit event
           stopLoading();
 
-          if(error.response.data.message){
-            emit('error', error.response.data.message);
-          }
-          else{
-            emit('error','An error occurred while sending email.');
-          }
+          // Emit the event with data
+          emit('error', data.message);
           
         })
       }
