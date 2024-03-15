@@ -55,7 +55,7 @@
           <TieredMenu ref="userMenu" id="user_menu" :model="userMenuItems" popup />
 
           <!-- Dialog and the email help support form -->
-          <Dialog v-model:visible="emailDialogVisible" modal :draggable="false" header="Need Support? Email Us" class="w-2/5">
+          <Dialog v-model:visible="emailDialogVisible" modal :draggable="false" header="Need Support? Email Us" class="dialog">
             <EmailDialogContent @close="closeEmailDialog" @success="sendSuccess" @error="sendError"/>
           </Dialog>
 

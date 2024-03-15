@@ -33,10 +33,12 @@
   }
 }
 
+/* Set for input validation text */
 .redText {
   color: #ff0000;
 }
 
+/* Set for the hidden input, to get focus, so the component will not focus on close icon when open */
 .focus-only {
   position: absolute;
   width: 1px;
@@ -49,6 +51,13 @@
   border-width: 0;
 }
 
+/* Set for the rsponsive toast */
 .toast {
-  @apply w-4/5 sm:w-3/5 md:w-2/5 lg:w-96
+  @apply w-4/5 sm:w-3/5 md:w-2/5 lg:w-96;
+}
+
+
+/* Set for the responsive dialog */
+.dialog {
+  @apply w-4/5 sm:w-3/5 md:w-3/5 lg:w-2/5
 }

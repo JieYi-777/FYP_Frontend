@@ -19,7 +19,7 @@
     </Card>
 
     <!-- To show each full content of the notification -->
-    <Dialog v-model:visible="notification.visible" :draggable="false" modal class="w-2/5" @show="handleDialogShow">
+    <Dialog v-model:visible="notification.visible" :draggable="false" modal class="dialog" @show="handleDialogShow">
 
       <!-- Show the notification title and created date (after formatted) -->
       <template #header>
