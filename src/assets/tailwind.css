@@ -61,3 +61,9 @@
 .dialog {
   @apply w-4/5 sm:w-3/5 md:w-3/5 lg:w-2/5
 }
+
+
+/* Set for the responsive sidebar */
+.sidebar {
+  @apply w-4/5 sm:w-3/5 md:w-2/5 lg:w-80
+}

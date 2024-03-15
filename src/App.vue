@@ -60,7 +60,7 @@
           </Dialog>
 
           <!-- User Profile sidebar -->
-          <Sidebar v-model:visible="userProfileSidebarVisible" header="Profile" position="right">
+          <Sidebar v-model:visible="userProfileSidebarVisible" header="Profile" position="right" class="sidebar">
             <UserProfile />
           </Sidebar>
         </div>
