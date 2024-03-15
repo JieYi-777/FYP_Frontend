@@ -23,6 +23,7 @@
     
   </Fieldset>
 
+  <!-- The new username dialog -->
   <!-- Because the new username input and validation text cannot clear, so need to clear when dialog is closed -->
   <Dialog v-model:visible="editUsername_visible" modal :draggable="false" 
     header="Edit Username" class="small-dialog" @hide="clearNewUsername" @after-hide="clearNewUsernameValidationText">
@@ -60,10 +61,35 @@
     <div class="profile_fieldset_content">
       <span>{{ current_email }}</span>
 
-      <Button icon="pi pi-pencil" size="small" v-tooltip.right="'Edit'"/>
+      <Button icon="pi pi-pencil" size="small" v-tooltip.right="'Edit'" @click="open_EditEmail"/>
     </div>
     
   </Fieldset>
+
+  <!-- The new email dialog -->
+  <Dialog v-model:visible="editEmail_visible" modal :draggable="false" 
+    header="Edit Email" class="small-dialog" @hide="clearNewEmail" @after-hide="clearNewEmailValidationText">
+    <!-- New email input -->
+    <div>
+      <InputGroup>
+        <InputGroupAddon>
+          <i class="pi pi-envelope"></i>
+        </InputGroupAddon>
+
+        <InputText placeholder="New Email" v-model="newEmail" :class="{'p-invalid': newEmail_validationText}"/>
+      </InputGroup>
+    </div>
+
+    <!-- Validation respond to email input -->
+    <div :class="{'text-left mb-3': newEmail_validationText, 'mb-9': !newEmail_validationText}">
+      <small class="redText">{{ newEmail_validationText }}</small>
+    </div>
+
+    <div class="flex justify-end gap-2">
+      <Button type="button" label="Cancel" severity="secondary" @click="close_EditEmail"></Button>
+      <Button type="button" label="Save" @click="sendEditEmail"></Button>
+    </div>
+  </Dialog>
 
   <!-- The password field -->
   <Fieldset class="profile_fieldset">
@@ -113,7 +139,8 @@ import InputGroup from 'primevue/inputgroup';
 import InputGroupAddon from 'primevue/inputgroupaddon';
 import Toast from 'primevue/toast';
 
-import { clearValue, getUsername, newUsernameValidation, controlEditUsernameDialog } from '../composables/Profile';
+import { clearValue, getUsername, newUsernameValidation,controlEditUsernameDialog, 
+newEmailValidation, controlEditEmailDialog } from '../composables/Profile';
 import { getUserEmail } from '../composables/UserEmail';
 import { checkValidInput } from '../composables/UserRegisterValidation';
 import { controlLoading } from '../composables/Loading';
@@ -135,6 +162,8 @@ export default {
     // Access the toast object
     const toast = useToast();
 
+    // ---------------------------------------New Username Related------------------------------------------------------
+
     // To get the username ref
     const { current_username } = getUsername();
 
@@ -143,27 +172,6 @@ export default {
 
     // To control the visibility of the Edit Username Dialog
     const { editUsername_visible, open_EditUsername, close_EditUsername } = controlEditUsernameDialog();
-
-    // Create the email ref
-    const current_email = ref('');
-
-    // The notification check ref
-    const notification_check = ref(true);
-
-    // Define the get email function (to call the request)
-    const getEmail = async() => {
-      try {
-        // Call getUserEmail to fetch the email value
-        const { current_email: emailValue } = await getUserEmail();
-
-        current_email.value = emailValue.value;
-      } catch (error) {
-        console.error('Error fetching user email:', error);
-      }
-    };
-
-    // Call function to get the email
-    getEmail();
 
     // To clear the new username input
     const clearNewUsername = () => {
@@ -235,11 +243,112 @@ export default {
       }
     }
 
+    // ---------------------------------------------New Email related---------------------------------------------------
+
+    // Create the current email ref
+    const current_email = ref('');
+
+    // Define the get current email function (to call the request)
+    const getEmail = async() => {
+      try {
+        // Call getUserEmail to fetch the email value
+        const { current_email: emailValue } = await getUserEmail();
+
+        current_email.value = emailValue.value;
+      } catch (error) {
+        console.error('Error fetching user email:', error);
+      }
+    };
+
+    // Call function to get the current email
+    getEmail();
+
+    // To get the new email ref and the validation text ref
+    const { newEmail, newEmail_validationText } = newEmailValidation(current_email);
+
+    // To control the visibility of the edit email dialog
+    const { editEmail_visible, open_EditEmail, close_EditEmail } = controlEditEmailDialog();
+
+    // To clear the new username input
+    const clearNewEmail = () => {
+      clearValue(newEmail);
+    }
+
+    // To clear the new username validation text
+    const clearNewEmailValidationText = () => {
+      clearValue(newEmail_validationText);
+    }
+
+    // To send the edit email request
+    const sendEditEmail = () => {
+      // Check the new username has value or not
+      if(!newEmail.value){
+        newEmail_validationText.value = 'Please enter your email.';
+      }
+
+      if(checkValidInput(newEmail.value, newEmail_validationText.value)){
+        // Start the loading spinner
+        startLoading();
+
+        // Collect data in object
+        const data = {
+          new_email: newEmail.value
+        }
+
+        // Get the token
+        const token = store.getters.getToken;
+
+        axios1.put('/user-profile/edit-email', data, 
+        {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+        }).then(response => {
+          // Hide the loading spinner and emit event
+          stopLoading();
+
+          // Close the Dialog
+          close_EditEmail();
+
+          // To update the username in profiel and vuex
+          current_email.value = data.new_email;
+
+          // Show the toast
+          toast.add({ severity: 'success', summary: 'Email Updated', detail: response.data.message, life: 3000 });
+        }).catch(error => {
+          // Check the status and data is exist or not, if exist use the data, else status = 500 and data is the message
+          const status = error.response?.status || 500;
+          const data = error.response.data.message? error.response.data : { message: 'An error occurred while updating email.' };
+
+          console.error(error);
+
+          // Hide the loading spinner and emit event
+          stopLoading();
+
+          if (status === 400) {
+            toast.add({ severity: 'warn', summary: data.message, detail: 'Please choose a different email.', life: 3000 });
+          }
+          else if (status === 404) {
+            toast.add({ severity: 'error', summary: data.message, detail: 'Cannot update email. Please check with us for assistance.', life: 3000 });
+          }
+          else {
+            toast.add({ severity: 'error', summary: 'Error', detail: data.message, life: 3000 });
+          }
+        })
+      }
+    }
+
+    // ---------------------------------------Notification related---------------------------------------------------------
+
+    // The notification check ref
+    const notification_check = ref(true);
+
     return {
       loading,
       current_username, newUsername, newUsername_validationText, editUsername_visible, 
       open_EditUsername, close_EditUsername, sendEditUsername, clearNewUsername, clearNewUsernameValidationText,
-      current_email,
+      current_email, newEmail, newEmail_validationText, editEmail_visible, open_EditEmail, close_EditEmail,
+      clearNewEmail, clearNewEmailValidationText, sendEditEmail,
       notification_check
     };
     

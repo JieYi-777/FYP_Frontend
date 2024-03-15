@@ -21,7 +21,7 @@ export const getUsername = () => {
 }
 
 // To check the new username same to the curren username or not
-// To ref the new username and new username validate text
+// To ref the new username and new username validation text
 export const newUsernameValidation = (current_username)=>{
 
   // To reference to the username value and username validation text
@@ -67,5 +67,52 @@ export const controlEditUsernameDialog = () => {
   }
 
   return { editUsername_visible, open_EditUsername, close_EditUsername };
+
+}
+
+// To check the new email same to the curren email or not
+// To ref the new email and new email validation text
+export const newEmailValidation = (current_email) => {
+
+  // To reference to the email value, and email validation text
+  const newEmail = ref('');
+  const newEmail_validationText = ref('');
+
+  // To validate the email input
+  watch(newEmail, (newValue) => {
+    if (newValue.trim() === '') {
+      newEmail_validationText.value = 'Please enter your email.';
+    }
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newValue)) {
+      newEmail_validationText.value = 'Invalid email format.';
+    }
+    else if(newValue.toLowerCase() === current_email.value.toLowerCase()){
+      newEmail_validationText.value = 'New email must be different from the current email. Please choose a different email.';
+    }
+    else {
+      newEmail_validationText.value = '';
+    }
+  });
+
+  return { newEmail, newEmail_validationText };
+}
+
+// To control the visible of the Edit Email Dialog
+export const controlEditEmailDialog = () => {
+
+  // The Edit Username Dialog ref
+  const editEmail_visible = ref(false);
+
+  // To open the Edit Username Dialog
+  const open_EditEmail = () => {
+    editEmail_visible.value = true;
+  }
+
+  // To close the Edit Username Dialog
+  const close_EditEmail = () => {
+    editEmail_visible.value = false;
+  }
+
+  return { editEmail_visible, open_EditEmail, close_EditEmail };
 
 }
