@@ -72,3 +72,8 @@
 .small-dialog {
   @apply w-4/5 sm:w-3/5 md:w-2/5 lg:w-25rem;
 }
+
+/* Notification confirm popup */
+.notification-popup {
+  @apply w-3/5 sm:w-80 md:w-64 lg:w-60;
+}

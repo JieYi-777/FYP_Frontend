@@ -153,7 +153,7 @@ export const getUserNotificationEnabled = async() => {
     const token = store.getters.getToken;
 
     // Fetch the user's notifications data
-    const response = await axios1.get('/user-profile/notification-enable-check', 
+    const response = await axios1.get('/user-profile/check-notification-enabled', 
     {
       headers: {
         'Authorization': `Bearer ${token}`

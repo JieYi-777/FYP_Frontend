@@ -172,13 +172,13 @@
         <div class="profile_fieldset_title">
           <Avatar icon="pi pi-bell" shape="circle" />
           <span class="font-bold p-1">Notification</span>
-          <i class="pi pi-info-circle self-start cursor-pointer" v-tooltip.right="'Budget Threshold Email'"/>
+          <i class="pi pi-info-circle self-start cursor-pointer" v-tooltip.right="'Budget Exceedance Prediction Alerts'"/>
         </div>
     </template>
     
     <div class="profile_fieldset_content">
-      <InputSwitch v-model="notification_check" @click="confirm1($event)"/>
-      <ConfirmPopup></ConfirmPopup>
+      <InputSwitch v-model="notification_check" :disabled="switchDisabled" @click="uncheckNotificationConfirm($event)"/>
+      <ConfirmPopup class="notification-popup"></ConfirmPopup>
     </div>
     
   </Fieldset>
@@ -225,25 +225,8 @@ export default {
     // Access the toast object
     const toast = useToast();
 
+    // Access the confirm popup object
     const confirm = useConfirm();
-
-    const confirm1 = (event) => {
-    confirm.require({
-        target: event.currentTarget,
-        message: 'Are you sure you want to proceed?',
-        icon: 'pi pi-exclamation-triangle',
-        rejectClass: 'p-button-secondary p-button-sm',
-        acceptClass: 'p-button-sm',
-        rejectLabel: 'Cancel',
-        acceptLabel: 'Save',
-        accept: () => {
-            toast.add({ severity: 'info', summary: 'Confirmed', detail: 'You have accepted', life: 3000 });
-        },
-        reject: () => {
-            toast.add({ severity: 'error', summary: 'Rejected', detail: 'You have rejected', life: 3000 });
-        }
-    });
-};
 
     // ---------------------------------------New Username Related------------------------------------------------------
 
@@ -525,6 +508,9 @@ export default {
     // The notification check ref
     const notification_check = ref(true);
 
+    // To change the input switch input disable value
+    const switchDisabled = ref(false);
+
     const getNotificationChecked = async() => {
       try {
         // Call getUserNotificationEnabled to get the user notification enabled status
@@ -539,6 +525,73 @@ export default {
     // Call the function
     getNotificationChecked();
 
+    // Confirm again when user disable/uncheck the over budget threshold email notification
+    const uncheckNotificationConfirm = (event) => {
+      if(notification_check.value == true){ // Means change true to false for the notification switch moment
+
+        // Show the confirmation
+        confirm.require({
+          target: event.currentTarget,
+          position: 'top',
+          message: 'Confirming means you won\'t receive alerts about potential overspending based on our expense trend predictions. Proceed?',
+          rejectClass: 'p-button-secondary p-button-sm',
+          acceptClass: 'p-button-sm',
+          rejectLabel: 'No',
+          acceptLabel: 'Yes',
+          accept: () => {
+            // Enable the switch, and send the request to change data
+            switchDisabled.value = false;
+
+            // Get the token
+            const token = store.getters.getToken;
+
+            // Send the request to change the value of notification_enabled to false
+            axios1.put('/user-profile/update-notification-enabled', {notification_enabled: false},
+            {
+              headers: {
+                'Authorization': `Bearer ${token}`
+              }
+            }).catch(error => {
+              console.error(error);
+            })
+          },
+          reject: () => {
+            // Enable the switch, and make the value back to checked
+
+            switchDisabled.value = false;
+            notification_check.value = true;
+          },
+          onShow: () => {
+            // Disable the switch when user do decision for confirmation
+            // Need to setTimeout so the switch change value first before disabled
+            setTimeout(() => {
+              switchDisabled.value = true;
+            }, 1)
+          },
+          onHide: () => {
+            // Enable the switch back if user click outside the popup, and reverse the value to checked
+
+            switchDisabled.value = false;
+            notification_check.value = true;
+          }
+        });
+      }
+      else{
+        // Get the token
+        const token = store.getters.getToken;
+
+        // Send the request to change the value of notification_enabled to true
+        axios1.put('/user-profile/update-notification-enabled', {notification_enabled: true},
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }).catch(error => {
+          console.error(error);
+        })
+      }
+    };
+
     return {
       loading,
       current_username, newUsername, newUsername_validationText, editUsername_visible, 
@@ -547,7 +600,7 @@ export default {
       clearNewEmail, clearNewEmailValidationText, sendEditEmail,
       oldPassword, oldPassword_validationText, newPassword, newPassword_validationText,  confirmNewPassword, confirmNewPassword_validationText,
       changePassword_visible, open_ChangePassword, close_ChangePassword, clearPassword, clearPasswordValidationText, sendChangePassword,
-      notification_check, confirm1
+      notification_check, switchDisabled, uncheckNotificationConfirm
     };
     
   }
