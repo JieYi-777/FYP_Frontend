@@ -1,12 +1,12 @@
 @layer tailwind-base, primevue, tailwind-utilities;
 
 @layer tailwind-base {
-    @tailwind base;
+  @tailwind base;
 }
 
 @layer tailwind-utilities {
-    @tailwind components;
-    @tailwind utilities;
+  @tailwind components;
+  @tailwind utilities;
 }
 
 @layer base {
@@ -76,4 +76,14 @@
 /* Notification confirm popup */
 .notification-popup {
   @apply w-3/5 sm:w-80 md:w-64 lg:w-60;
+}
+
+/* To apply style to the Card component which is the main content container */
+.main-content-card {
+  @apply m-5 rounded-none;
+}
+
+/* For expense responsive toolbar */
+.expense-toolbar {
+  @apply w-full sm:w-4/5;
 }
