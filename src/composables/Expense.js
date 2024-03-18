@@ -93,3 +93,29 @@ export const expenseAmountValidation = () => {
 
   return { expenseAmount, expenseAmount_validationText, callCheckAmount };
 }
+
+// To create expense date ref and its initial value
+export const createExpenseDate = () => {
+  // Get todat date
+  const today = new Date();
+
+  // Initialize the today date value for the expense date input ref
+  const expenseDate = ref(today);
+
+  // Set the maxDate to today
+  const maxDate = ref(today);
+
+  // Reset the date value to today
+  const resetExpenseDate = () => {
+    expenseDate.value = today;
+  }
+
+  // Reset the date value to today when blur (AND if it is null value)
+  const resetDateWhenBlur = () => {
+    if(expenseDate.value === null){
+      resetExpenseDate();
+    }
+  }
+
+  return { expenseDate, maxDate, resetExpenseDate, resetDateWhenBlur }
+}

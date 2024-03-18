@@ -44,6 +44,18 @@
         <small class="redText">{{ expenseAmount_validationText }}</small>
       </div>
 
+      <!-- Expense date input -->
+      <div>
+        <InputGroup>
+          <InputGroupAddon>
+            <span>Date</span>
+          </InputGroupAddon>
+
+          <Calendar placeholder="Expense Date" v-model="expenseDate" dateFormat="dd/mm/yy" :maxDate="maxDate"
+            showIcon iconDisplay="input" @blur="resetDateWhenBlur"/>
+        </InputGroup>
+      </div>
+
     </form>
 
 
@@ -97,7 +109,7 @@ import InputText from 'primevue/inputtext'
 import InputNumber from 'primevue/inputnumber'
 import Calendar from 'primevue/calendar'
 
-import { controlExpenseDialog, expenseTitleValidation, expenseAmountValidation } from '../composables/Expense';
+import { controlExpenseDialog, expenseTitleValidation, expenseAmountValidation, createExpenseDate } from '../composables/Expense';
 import { clearValue } from '../composables/Profile';
 
 export default {
@@ -113,16 +125,21 @@ export default {
     // The expense amount ref and its validation text ref
     const { expenseAmount, expenseAmount_validationText, callCheckAmount } = expenseAmountValidation();
 
+    // The expense date ref and its reset date functions
+    const { expenseDate, maxDate, resetExpenseDate, resetDateWhenBlur } = createExpenseDate();
+
     // To clear the input value when the dialog is closed
     const clearInputValue = () => {
       clearValue(expenseTitle);
       expenseAmount.value = null;   // clearValue is make the string empty, so cannot use
+      resetExpenseDate();           // Reset the date to today
     }
 
     // To clear the validation text value when the dialog is closed
     const clearValidationText = () => {
       clearValue(expenseTitle_validationText);
       clearValue(expenseAmount_validationText);
+      // Expense date does not have validation text
     }
 
     // Submit the expense to add expense
@@ -148,6 +165,7 @@ export default {
     return {
       expenseDialog, dialogHeaderTitle, openExpenseDialog, closeExpenseDialog,
       expenseTitle, expenseTitle_validationText, expenseAmount, expenseAmount_validationText, callCheckAmount,
+      expenseDate, maxDate, resetExpenseDate, resetDateWhenBlur,
       clearInputValue, clearValidationText, decideRequest
     };
   }
