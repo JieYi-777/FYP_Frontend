@@ -1,4 +1,6 @@
+import axios1 from "../axios.service";
 import { ref, watch } from "vue";
+import { useStore } from "vuex";
 
 // The ref and function related to the expense dialog
 export const controlExpenseDialog = () => {
@@ -96,7 +98,7 @@ export const expenseAmountValidation = () => {
 
 // To create expense date ref and its initial value
 export const createExpenseDate = () => {
-  // Get todat date
+  // Get today date
   const today = new Date();
 
   // Initialize the today date value for the expense date input ref
@@ -118,4 +120,76 @@ export const createExpenseDate = () => {
   }
 
   return { expenseDate, maxDate, resetExpenseDate, resetDateWhenBlur }
+}
+
+// To get the expense category list
+export const getExpenseCategory = async() => {
+  // Categories ref
+  const categories = ref(null);
+
+  // To access the store object
+  const store = useStore();
+
+  try {
+
+    // Get the token
+    const token = store.getters.getToken;
+
+    // Fetch the expense category data
+    const response = await axios1.get('/expense/get-expense-category-list', 
+    {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    // Get expense category list
+    categories.value =  response.data.category_list;
+
+  } catch (error) {
+    console.error('Error fetching expense category list:', error);
+  }
+
+  return { categories };
+}
+
+
+// To set up the selected category ref and category list ref, and validation text ref
+export const expenseCategoryValidation = () => {
+  // The selected expense category
+  const selectedCategory = ref(null);
+
+  // The expense category list options
+  const expenseCategoryList = ref(null);
+  
+  // The expense category validation text ref
+  const expenseCategory_validationText = ref('');
+
+  // To hide the valdiation text if select a option
+  const hideExpenseCategoryValidationText = (selectedValue) => {
+    if(selectedValue.value){
+      expenseCategory_validationText.value = '';
+    }
+  }
+
+  return { selectedCategory, expenseCategoryList, expenseCategory_validationText, hideExpenseCategoryValidationText }
+}
+
+// To validate the expense description
+export const expenseDescriptionValidation = () => {
+  // To reference to the expense description value and its validation text
+  const expenseDescription = ref('');
+  const expenseDescription_validationText = ref('');
+
+  // To validate the expense description textarea
+  watch(expenseDescription, (newValue) => {
+    if (newValue.trim().length > 255) {
+      expenseDescription_validationText.value = 'Expense description cannot exceed 255 characters.';
+    }
+    else {
+      expenseDescription_validationText.value = '';
+    }
+  });
+
+  return { expenseDescription, expenseDescription_validationText };
 }
