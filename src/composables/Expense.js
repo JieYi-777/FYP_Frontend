@@ -74,8 +74,14 @@ export const expenseAmountValidation = () => {
   // To validate the expense amount input
   // Note: the expenseAmount is set again to same value (so fix) because the validation text visibility affect the value
   const checkAmount = (amount) => {
+    const amountPattern = /^\d{1,7}(\.\d{1,2})?$/;
+
     if (amount == null || amount <= 0) {
       expenseAmount_validationText.value = 'Please enter your expense amount.';
+      expenseAmount.value = amount;
+    }
+    else if(!amountPattern.test(amount)){
+      expenseAmount_validationText.value = 'Maximum: 9 digits';
       expenseAmount.value = amount;
     }
     else {

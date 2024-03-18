@@ -1,5 +1,11 @@
 <template>
 
+  <!-- The loading spinner -->
+  <Loading :isLoading="loading" />
+
+  <!-- Toast -->
+  <Toast position="bottom-right" class="toast" />
+
   <!-- This is the dialog used for creating new expense and edit expense -->
   <Dialog v-model:visible="expenseDialog" :draggable="false" modal class="dialog" @hide="clearInputValue" @after-hide="clearValidationText">
 
@@ -126,6 +132,7 @@
 </template>
 
 <script>
+import Loading from '../components/Loading.vue';
 import Card from 'primevue/card'
 import Toolbar from 'primevue/toolbar'
 import Button from 'primevue/button'
@@ -137,16 +144,29 @@ import InputNumber from 'primevue/inputnumber'
 import Calendar from 'primevue/calendar'
 import Dropdown from 'primevue/dropdown'
 import Textarea from 'primevue/textarea'
+import Toast from 'primevue/toast';
 
 import { controlExpenseDialog, expenseTitleValidation, expenseAmountValidation, createExpenseDate,
   getExpenseCategory, expenseCategoryValidation, expenseDescriptionValidation} from '../composables/Expense';
 import { clearValue } from '../composables/Profile';
 import { checkValidInput } from '../composables/UserRegisterValidation';
+import { controlLoading } from '../composables/Loading';
+import { useStore } from 'vuex'
+import { useToast } from 'primevue/usetoast';
+import axios1 from '@/axios.service'
 
 export default {
-  components: { Card, Toolbar, Button, Dialog, InputGroup, InputGroupAddon, InputText, InputNumber, 
-    Calendar, Dropdown, Textarea },
+  components: { Loading, Toast, Card, Toolbar, Button, Dialog, InputGroup, InputGroupAddon, InputText, InputNumber, 
+    Calendar, Dropdown, Textarea, },
   setup() {
+    // Access the loading object
+    const store = useStore();
+
+    // To control the loading spinner
+    const { loading, startLoading, stopLoading } = controlLoading();
+
+    // Access the toast object
+    const toast = useToast();
 
     // Control the expense dialog and its title
     const { expenseDialog, dialogHeaderTitle, openExpenseDialog, closeExpenseDialog } = controlExpenseDialog();
@@ -217,15 +237,49 @@ export default {
       if(checkValidInput(expenseTitle.value, expenseTitle_validationText.value) && checkValidInput(expenseAmount.value, expenseAmount_validationText.value)
         && checkValidInput(selectedCategory.value, expenseCategory_validationText.value) && !expenseDescription_validationText.value){
 
+        // Start the loading spinner
+        startLoading();
+
         const data = {
           title: expenseTitle.value.trim(),
           date: expenseDate.value.toISOString(),
           amount: expenseAmount.value,
-          category: selectedCategory.value.id,
+          category_id: selectedCategory.value.id,
           description: expenseDescription.value.trim()
         }
 
         console.log(data);
+
+        // Get the token
+        const token = store.getters.getToken;
+
+        axios1.post('/expense/add-expense', data,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }).then(response => {
+          // Hide the loading spinner
+          stopLoading();
+
+          // Close the dialog
+          closeExpenseDialog();
+
+          // !important later need to add expense to data table
+
+          // Show the toast
+          toast.add({ severity: 'success', summary: 'Expense Added', detail: response.data.message, life: 3000 });
+
+        }).catch(error => {
+          // Hide the loading spinner
+          stopLoading();
+
+          const data = error.response.data.message? error.response.data : { message: 'An error occurred while adding expense.' };
+          console.error(error);
+
+          toast.add({ severity: 'error', summary: 'Error', detail: data.message, life: 3000 });
+
+        })
       }
     }
 
@@ -239,6 +293,7 @@ export default {
     
 
     return {
+      loading,
       expenseDialog, dialogHeaderTitle, openExpenseDialog, closeExpenseDialog,
       expenseTitle, expenseTitle_validationText, expenseAmount, expenseAmount_validationText, callCheckAmount,
       expenseDate, maxDate, resetExpenseDate, resetDateWhenBlur,
