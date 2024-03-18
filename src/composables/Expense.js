@@ -201,17 +201,11 @@ export const expenseDescriptionValidation = () => {
 }
 
 // To get all expense data of user
-export const getExpenseDataRequest = async() => {
+export const getExpenseDataRequest = async(token) => {
   // Expense data ref
   const expenses = ref(null);
 
-  // To access the store object
-  const store = useStore();
-
   try {
-
-    // Get the token
-    const token = store.getters.getToken;
 
     // Fetch the expense category data
     const response = await axios1.get('/expense', 
@@ -227,6 +221,7 @@ export const getExpenseDataRequest = async() => {
     // Convert date strings to Date objects
     expenses.value.forEach((expense) => {
       expense.date = new Date(expense.date);
+      expense.amount = parseFloat(expense.amount);
     });
 
   } catch (error) {
@@ -235,3 +230,15 @@ export const getExpenseDataRequest = async() => {
 
   return { expenses };
 }
+
+// To format the date
+export const formatDate = (date) => {
+  return date.toLocaleDateString('ms-MY');
+}
+
+// To format the currency of the expense amount
+export const formatCurrency = (amount) => {
+
+  return amount.toLocaleString('ms-MY', {style: 'currency', currency: 'MYR'});
+
+};

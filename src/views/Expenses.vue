@@ -111,11 +111,10 @@
         <h3 class="mb-4">This is Expenses Chart</h3>
 
         <!-- The toolbar above the expense data table -->
-        <div class="expense-toolbar">
+        <div class="expense-toolbar mb-4">
           <Toolbar>
             <template #start>
               <Button label="New" icon="pi pi-plus" severity="primary" class="mr-2" @click="openExpenseDialog('add')"/>
-              <Button label="Delete" icon="pi pi-trash" severity="danger" />
             </template>
 
             <template #end>
@@ -124,6 +123,45 @@
           </Toolbar>
         </div>
         
+        <!-- The data table that show all expenses (same class with the toolbar's width) -->
+        <div class="expense-toolbar">
+          <DataTable ref="expense_dt" :value="expenses" dataKey="id" removableSort
+            :paginator="true" :rows="10" :rowsPerPageOptions="[5, 10, 20, 50]" stripedRows
+            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} expenses">
+
+            <!-- Header of the data table -->
+            <template #header>
+              <div class="flex flex-wrap gap-2 items-center justify-between">
+                <h4 class="m-0">Expenses</h4>
+                
+                <IconField iconPosition="left">
+                  <InputIcon>
+                    <i class="pi pi-search" />
+                  </InputIcon>
+                  <InputText  placeholder="Search..." />
+                </IconField>
+              </div>
+            </template>
+
+            <!-- The columns of the data table -->
+            <Column field="title" header="Title" sortable></Column>
+
+            <Column field="date" header="Date" sortable>
+              <template #body="slotProps">
+                {{formatDate(slotProps.data.date)}}
+              </template>
+            </Column>
+
+            <Column field="amount" header="Amount" sortable>
+              <template #body="slotProps">
+                {{formatCurrency(slotProps.data.amount)}}
+              </template>
+            </Column>
+
+            <Column field="category_name" header="Category" sortable></Column>
+          </DataTable>
+        </div>
 
       </div>
     </template>
@@ -147,10 +185,12 @@ import Textarea from 'primevue/textarea';
 import Toast from 'primevue/toast';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
+import IconField from 'primevue/iconfield';
+import InputIcon from 'primevue/inputicon';
 
 import { controlExpenseDialog, expenseTitleValidation, expenseAmountValidation, createExpenseDate,
   getExpenseCategory, expenseCategoryValidation, expenseDescriptionValidation,
-  getExpenseDataRequest} from '../composables/Expense';
+  getExpenseDataRequest, formatDate, formatCurrency} from '../composables/Expense';
 import { clearValue } from '../composables/Profile';
 import { checkValidInput } from '../composables/UserRegisterValidation';
 import { controlLoading } from '../composables/Loading';
@@ -161,7 +201,7 @@ import axios1 from '@/axios.service'
 
 export default {
   components: { Loading, Toast, Card, Toolbar, Button, Dialog, InputGroup, InputGroupAddon, InputText, InputNumber, 
-    Calendar, Dropdown, Textarea, DataTable, Column },
+    Calendar, Dropdown, Textarea, DataTable, Column, IconField, InputIcon },
   setup() {
 
     // ----------------------------------------Common object--------------------------------------------------------
@@ -256,7 +296,7 @@ export default {
           category_id: selectedCategory.value.id,
           description: expenseDescription.value.trim()
         }
-
+        
         // Get the token
         const token = store.getters.getToken;
 
@@ -272,7 +312,8 @@ export default {
           // Close the dialog
           closeExpenseDialog();
 
-          // !important later need to add expense to data table
+          // Call the function to get all the expenses (the function is defined below)
+          getExpenses();
 
           // Show the toast
           toast.add({ severity: 'success', summary: 'Expense Added', detail: response.data.message, life: 3000 });
@@ -299,19 +340,23 @@ export default {
 
     // ----------------------------------------------Expense data table related--------------------------------------------------
     
+    // The expense data table ref
+    const expense_dt = ref();
+
     // The expenses objects ref
     const expenses = ref(null);
 
     // The function to call the getExpenseRequest
     const getExpenses = async() => {
       try {
+        // Get the token
+        const token = store.getters.getToken;
+
         // Call getExpenseDataRequest to fetch the expenses
-        const { expenses: expenses_objects } = await getExpenseDataRequest();
+        const { expenses: expenses_objects } = await getExpenseDataRequest(token);
 
         // Update the expenses ref with the fetched value
         expenses.value = expenses_objects.value;
-
-        console.log(expenses.value[0].date)
       } catch (error) {
         console.error('Error fetching expenses:', error);
       }
@@ -327,6 +372,7 @@ export default {
       expenseDate, maxDate, resetExpenseDate, resetDateWhenBlur,
       selectedCategory, expenseCategoryList, expenseCategory_validationText, hideExpenseCategoryValidationText,
       expenseDescription, expenseDescription_validationText,
+      expense_dt, expenses, formatDate, formatCurrency,
       clearInputValue, clearValidationText, decideRequest
     };
   }
