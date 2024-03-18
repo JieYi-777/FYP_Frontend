@@ -133,32 +133,39 @@
 
 <script>
 import Loading from '../components/Loading.vue';
-import Card from 'primevue/card'
-import Toolbar from 'primevue/toolbar'
-import Button from 'primevue/button'
-import Dialog from 'primevue/dialog'
-import InputGroup from 'primevue/inputgroup'
-import InputGroupAddon from 'primevue/inputgroupaddon'
-import InputText from 'primevue/inputtext'
-import InputNumber from 'primevue/inputnumber'
-import Calendar from 'primevue/calendar'
-import Dropdown from 'primevue/dropdown'
-import Textarea from 'primevue/textarea'
+import Card from 'primevue/card';
+import Toolbar from 'primevue/toolbar';
+import Button from 'primevue/button';
+import Dialog from 'primevue/dialog';
+import InputGroup from 'primevue/inputgroup';
+import InputGroupAddon from 'primevue/inputgroupaddon';
+import InputText from 'primevue/inputtext';
+import InputNumber from 'primevue/inputnumber';
+import Calendar from 'primevue/calendar';
+import Dropdown from 'primevue/dropdown';
+import Textarea from 'primevue/textarea';
 import Toast from 'primevue/toast';
+import DataTable from 'primevue/datatable';
+import Column from 'primevue/column';
 
 import { controlExpenseDialog, expenseTitleValidation, expenseAmountValidation, createExpenseDate,
-  getExpenseCategory, expenseCategoryValidation, expenseDescriptionValidation} from '../composables/Expense';
+  getExpenseCategory, expenseCategoryValidation, expenseDescriptionValidation,
+  getExpenseDataRequest} from '../composables/Expense';
 import { clearValue } from '../composables/Profile';
 import { checkValidInput } from '../composables/UserRegisterValidation';
 import { controlLoading } from '../composables/Loading';
+import { ref } from 'vue';
 import { useStore } from 'vuex'
 import { useToast } from 'primevue/usetoast';
 import axios1 from '@/axios.service'
 
 export default {
   components: { Loading, Toast, Card, Toolbar, Button, Dialog, InputGroup, InputGroupAddon, InputText, InputNumber, 
-    Calendar, Dropdown, Textarea, },
+    Calendar, Dropdown, Textarea, DataTable, Column },
   setup() {
+
+    // ----------------------------------------Common object--------------------------------------------------------
+
     // Access the loading object
     const store = useStore();
 
@@ -167,6 +174,8 @@ export default {
 
     // Access the toast object
     const toast = useToast();
+
+    // -----------------------------------------------Add Expense dialog related------------------------------------------------
 
     // Control the expense dialog and its title
     const { expenseDialog, dialogHeaderTitle, openExpenseDialog, closeExpenseDialog } = controlExpenseDialog();
@@ -248,8 +257,6 @@ export default {
           description: expenseDescription.value.trim()
         }
 
-        console.log(data);
-
         // Get the token
         const token = store.getters.getToken;
 
@@ -290,7 +297,28 @@ export default {
       }
     }
 
+    // ----------------------------------------------Expense data table related--------------------------------------------------
     
+    // The expenses objects ref
+    const expenses = ref(null);
+
+    // The function to call the getExpenseRequest
+    const getExpenses = async() => {
+      try {
+        // Call getExpenseDataRequest to fetch the expenses
+        const { expenses: expenses_objects } = await getExpenseDataRequest();
+
+        // Update the expenses ref with the fetched value
+        expenses.value = expenses_objects.value;
+
+        console.log(expenses.value[0].date)
+      } catch (error) {
+        console.error('Error fetching expenses:', error);
+      }
+    };
+
+    // Call the function
+    getExpenses();
 
     return {
       loading,

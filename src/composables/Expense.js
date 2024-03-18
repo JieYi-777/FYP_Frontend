@@ -199,3 +199,39 @@ export const expenseDescriptionValidation = () => {
 
   return { expenseDescription, expenseDescription_validationText };
 }
+
+// To get all expense data of user
+export const getExpenseDataRequest = async() => {
+  // Expense data ref
+  const expenses = ref(null);
+
+  // To access the store object
+  const store = useStore();
+
+  try {
+
+    // Get the token
+    const token = store.getters.getToken;
+
+    // Fetch the expense category data
+    const response = await axios1.get('/expense', 
+    {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    // Get expense category list
+    expenses.value =  response.data.expenses;
+
+    // Convert date strings to Date objects
+    expenses.value.forEach((expense) => {
+      expense.date = new Date(expense.date);
+    });
+
+  } catch (error) {
+    console.error('Error fetching expenses:', error);
+  }
+
+  return { expenses };
+}
