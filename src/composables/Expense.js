@@ -1,6 +1,7 @@
 import axios1 from "../axios.service";
 import { ref, watch } from "vue";
 import { useStore } from "vuex";
+import { FilterMatchMode } from 'primevue/api';
 
 // The ref and function related to the expense dialog
 export const controlExpenseDialog = () => {
@@ -242,3 +243,103 @@ export const formatCurrency = (amount) => {
   return amount.toLocaleString('ms-MY', {style: 'currency', currency: 'MYR'});
 
 };
+
+// To set the filters for expense data table
+export const createFilters = () => {
+  const filters = ref({
+    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    title: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+    date: { value: null, matchMode: FilterMatchMode.DATE_IS },
+    amount: { value: null, matchMode: FilterMatchMode.EQUALS }
+  });
+
+  return { filters };
+}
+
+// To set the title filter options
+export const titleFilterOptions = () => {
+  const titleFilter = ref([
+    {
+      label: 'Starts with',
+      value: 'startsWith'
+    },
+    {
+      label: 'Ends with',
+      value: 'endsWith'
+    },
+    {
+      label: 'Contains',
+      value: 'contains'
+    },
+    {
+      label: 'Not contains',
+      value: 'notContains'
+    },
+    {
+      label: 'Equals',
+      value: 'equals'
+    },
+    {
+      label: 'Not equals',
+      value: 'notEquals'
+    }
+  ])
+
+  return { titleFilter }
+}
+
+// To set the date filter options
+export const dateFilterOptions = () => {
+  const dateFilter = ref([
+    {
+      label: 'Date is',
+      value: 'dateIs'
+    },
+    {
+      label: 'Date is not',
+      value: 'dateIsNot'
+    },
+    {
+      label: 'Date is before',
+      value: 'dateBefore'
+    },
+    {
+      label: 'Date is after',
+      value: 'dateAfter'
+    }
+  ])
+
+  return { dateFilter }
+}
+
+// To set the amount filter options
+export const amountFilterOptions = () => {
+  const amountFilter = ref([
+    {
+      label: 'Equals',
+      value: 'equals'
+    },
+    {
+      label: 'Not equals',
+      value: 'notEquals'
+    },
+    {
+      label: 'Less than',
+      value: 'lt'
+    },
+    {
+      label: 'Less than or equal to',
+      value: 'lte'
+    },
+    {
+      label: 'Greater than',
+      value: 'gt'
+    },
+    {
+      label: 'Greater than or equal to',
+      value: 'gte'
+    }
+  ])
+
+  return { amountFilter }
+}

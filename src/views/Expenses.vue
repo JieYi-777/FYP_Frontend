@@ -125,8 +125,9 @@
         
         <!-- The data table that show all expenses (same class with the toolbar's width) -->
         <div class="expense-toolbar">
-          <DataTable ref="expense_dt" :value="expenses" dataKey="id" removableSort
-            :paginator="true" :rows="10" :rowsPerPageOptions="[5, 10, 20, 50]" stripedRows
+          <DataTable ref="expense_dt" :value="expenses" dataKey="id" removableSort stripedRows
+            v-model:filters="filters" filterDisplay="row" :globalFilterFields="['title', 'date', 'amount', 'category_name']"
+            :paginator="true" :rows="10" :rowsPerPageOptions="[5, 10, 20, 50]" 
             paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
             currentPageReportTemplate="Showing {first} to {last} of {totalRecords} expenses">
 
@@ -139,26 +140,44 @@
                   <InputIcon>
                     <i class="pi pi-search" />
                   </InputIcon>
-                  <InputText  placeholder="Search..." />
+                  <InputText  v-model="filters['global'].value" placeholder="Keyword Search..." />
                 </IconField>
               </div>
             </template>
 
-            <!-- The columns of the data table -->
-            <Column field="title" header="Title" sortable></Column>
+            <!-- To show it when no expense is found after filtering -->
+            <template #empty> No expenses found. </template>
 
-            <Column field="date" header="Date" sortable>
-              <template #body="slotProps">
-                {{formatDate(slotProps.data.date)}}
+            <!-- The 'title' column of the data table -->
+            <Column field="title" header="Title" sortable :filterMatchModeOptions="titleFilter">
+              <template #filter="{ filterModel, filterCallback }">
+                <InputText v-model="filterModel.value" type="text" @input="filterCallback()" class="p-column-filter" placeholder="Search by title" />
               </template>
             </Column>
 
-            <Column field="amount" header="Amount" sortable>
-              <template #body="slotProps">
-                {{formatCurrency(slotProps.data.amount)}}
+            <!-- The 'date' column -->
+            <Column field="date" header="Date" sortable :filterMatchModeOptions="dateFilter">
+              <template #body="{ data }">
+                {{formatDate(data.date)}}
+              </template>
+
+              <template #filter="{ filterModel, filterCallback }">
+                <Calendar v-model="filterModel.value" dateFormat="dd/mm/yy" placeholder="dd/mm/yyyy" @update:modelValue="filterCallback" :maxDate="maxDate"/>
               </template>
             </Column>
 
+            <!-- The 'amount' column -->
+            <Column field="amount" header="Amount" sortable :filterMatchModeOptions="amountFilter">
+              <template #body="{ data }">
+                {{formatCurrency(data.amount)}}
+              </template>
+
+              <template #filter="{ filterModel, filterCallback }">
+                <InputNumber v-model="filterModel.value" locale="ms-MY" mode="currency" currency="MYR" @input="(event) => {filterModel.value = event.value; filterCallback()}" />
+              </template>
+            </Column>
+
+            <!-- The 'category name' column -->
             <Column field="category_name" header="Category" sortable></Column>
           </DataTable>
         </div>
@@ -190,7 +209,8 @@ import InputIcon from 'primevue/inputicon';
 
 import { controlExpenseDialog, expenseTitleValidation, expenseAmountValidation, createExpenseDate,
   getExpenseCategory, expenseCategoryValidation, expenseDescriptionValidation,
-  getExpenseDataRequest, formatDate, formatCurrency} from '../composables/Expense';
+  getExpenseDataRequest, formatDate, formatCurrency, createFilters, 
+  titleFilterOptions, dateFilterOptions, amountFilterOptions} from '../composables/Expense';
 import { clearValue } from '../composables/Profile';
 import { checkValidInput } from '../composables/UserRegisterValidation';
 import { controlLoading } from '../composables/Loading';
@@ -346,6 +366,14 @@ export default {
     // The expenses objects ref
     const expenses = ref(null);
 
+    // To get the filters apply to the data table
+    const { filters } = createFilters();
+
+    // To set the filter options for title, date
+    const { titleFilter } = titleFilterOptions();
+    const { dateFilter } = dateFilterOptions();
+    const { amountFilter } = amountFilterOptions();
+
     // The function to call the getExpenseRequest
     const getExpenses = async() => {
       try {
@@ -372,7 +400,7 @@ export default {
       expenseDate, maxDate, resetExpenseDate, resetDateWhenBlur,
       selectedCategory, expenseCategoryList, expenseCategory_validationText, hideExpenseCategoryValidationText,
       expenseDescription, expenseDescription_validationText,
-      expense_dt, expenses, formatDate, formatCurrency,
+      expense_dt, expenses, filters, formatDate, formatCurrency, titleFilter, dateFilter, amountFilter,
       clearInputValue, clearValidationText, decideRequest
     };
   }
