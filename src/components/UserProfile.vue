@@ -178,7 +178,7 @@
     
     <div class="profile_fieldset_content">
       <InputSwitch v-model="notification_check" :disabled="switchDisabled" @click="uncheckNotificationConfirm($event)"/>
-      <ConfirmPopup class="notification-popup"></ConfirmPopup>
+      <ConfirmPopup class="notification-popup" group="notification-popup"></ConfirmPopup>
     </div>
     
   </Fieldset>
@@ -532,6 +532,7 @@ export default {
         // Show the confirmation
         confirm.require({
           target: event.currentTarget,
+          group: 'notification-popup',
           position: 'top',
           message: 'Confirming means you won\'t receive alerts about potential overspending based on our expense trend predictions. Proceed?',
           rejectClass: 'p-button-secondary p-button-sm',
