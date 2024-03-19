@@ -191,7 +191,7 @@
             <!-- The edit and delete button -->
             <Column :exportable="false" class="min-w-32">
               <template #body="slotProps">
-                <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="editProduct(slotProps.data)" />
+                <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="openEditExpense(slotProps.data)" />
                 <Button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDeleteProduct(slotProps.data)" />
               </template>
             </Column>
@@ -224,22 +224,25 @@ import Column from 'primevue/column';
 import IconField from 'primevue/iconfield';
 import InputIcon from 'primevue/inputicon';
 import MultiSelect from 'primevue/multiselect';
+import ConfirmDialog from 'primevue/confirmdialog';
 
 import { controlExpenseDialog, expenseTitleValidation, expenseAmountValidation, createExpenseDate,
   getExpenseCategory, expenseCategoryValidation, expenseDescriptionValidation,
-  getExpenseDataRequest, formatDate, formatCurrency, createFilters, 
-  titleFilterOptions, dateFilterOptions, amountFilterOptions, extractExpenseCategory} from '../composables/Expense';
+  getExpenseDataRequest, formatDate, formatCurrency, createFilters, titleFilterOptions,
+  dateFilterOptions, amountFilterOptions, extractExpenseCategory, getSpecificExpense,
+  compareExpenseData} from '../composables/Expense';
 import { clearValue } from '../composables/Profile';
 import { checkValidInput } from '../composables/UserRegisterValidation';
 import { controlLoading } from '../composables/Loading';
 import { ref } from 'vue';
 import { useStore } from 'vuex'
 import { useToast } from 'primevue/usetoast';
+import { useConfirm } from "primevue/useconfirm";
 import axios1 from '@/axios.service'
 
 export default {
   components: { Loading, Toast, Card, Toolbar, Button, Dialog, InputGroup, InputGroupAddon, InputText, InputNumber, 
-    Calendar, Dropdown, Textarea, DataTable, Column, IconField, InputIcon, MultiSelect },
+    Calendar, Dropdown, Textarea, DataTable, Column, IconField, InputIcon, MultiSelect, ConfirmDialog },
   setup() {
 
     // ----------------------------------------Common object--------------------------------------------------------
@@ -252,6 +255,9 @@ export default {
 
     // Access the toast object
     const toast = useToast();
+
+    // Access the confirm object
+    const confirm = useConfirm();
 
     // -----------------------------------------------Add Expense dialog related------------------------------------------------
 
@@ -374,6 +380,12 @@ export default {
       if(dialogHeaderTitle.value === 'Add Expense'){
         sendAddExpenseRequest();
       }
+      else if(dialogHeaderTitle.value === 'Edit Expense'){
+        sendUpdateExpenseRequest();
+      }
+      else{
+        console.error('decide expense request error');
+      }
     }
 
     // ----------------------------------------------Expense data table related--------------------------------------------------
@@ -417,6 +429,7 @@ export default {
     // Call the function
     getExpenses();
 
+    // Format the data in the data table before export to csv
     const formatDataBeforeExport = (object) => {
       console.log(object)
 
@@ -431,9 +444,107 @@ export default {
       }
     }
 
+    // Export the data table to csv
     const exportCSV = () => {
       expense_dt.value.exportCSV();
     };
+
+    // -------------------------------------------------Edit Expense related-----------------------------------------------
+
+    // To hold the old data, to compare the new data, and check is there any update
+    const oldExpenseData = ref(null);
+
+    // To open the expense dialog and assign the value
+    const openEditExpense = (expense_obj) => {
+      // Convert into expense object copy
+      const expense = getSpecificExpense(expense_obj);
+
+      oldExpenseData.value = expense;
+
+      // Assign the value
+      expenseTitle.value = expense.title;
+      expenseDate.value = expense.date;
+      expenseAmount.value = expense.amount;
+      selectedCategory.value = {'id': expense.category_id, 'name': expense.category_name};
+      expenseDescription.value = expense.description;
+
+      openExpenseDialog('edit');
+    }
+
+    // To send update expense data request
+    const sendUpdateExpenseRequest = () => {
+
+      if(checkValidInput(expenseTitle.value, expenseTitle_validationText.value) && checkValidInput(expenseAmount.value, expenseAmount_validationText.value)
+        && checkValidInput(selectedCategory.value, expenseCategory_validationText.value) && !expenseDescription_validationText.value){
+
+        
+
+        const newExpenseData = {
+          title: expenseTitle.value.trim(),
+          date: expenseDate.value,
+          amount: expenseAmount.value,
+          category_id: selectedCategory.value.id,
+          description: expenseDescription.value.trim()
+        }
+
+        // If have new change, then send request
+        if(compareExpenseData(oldExpenseData.value, newExpenseData)){
+          // Start the loading spinner
+          startLoading();
+
+          // Change the date format and add the id
+          newExpenseData.date = newExpenseData.date.toISOString();
+
+          // Get the token
+          const token = store.getters.getToken;
+
+          axios1.put(`/expense/update-expense/${oldExpenseData.value.id}`, newExpenseData,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          }).then(response => {
+            // Hide the loading spinner
+            stopLoading();
+
+            // Close the dialog
+            closeExpenseDialog();
+
+            // Call the function to get all the expenses (the function is defined below)
+            getExpenses();
+
+            // Show the toast
+            toast.add({ severity: 'success', summary: 'Expense Updated', detail: response.data.message, life: 3000 });
+
+          }).catch(error => {
+            // Hide the loading spinner
+            stopLoading();
+
+            const status = error.response?.status || 500;
+            const data = error.response.data.message? error.response.data : { message: 'An error occurred while updating expense.' };
+            console.error(error);
+
+            if(status === 404){
+              toast.add({ severity: 'error', summary: data.message, detail: 'Cannot update expense. Please check with us for assistance.', life: 3000 });
+            }
+            else{
+              toast.add({ severity: 'error', summary: 'Error', detail: data.message, life: 3000 });
+            }
+            
+
+          })
+        }
+        else{
+          // Show the toast
+          toast.add({ severity: 'warn', summary: 'No Changes Made', detail: 'Your expense details remain unchanged.', life: 3000 });
+        }
+        
+      }
+    }
+
+    // ------------------------------------------------Delete expense related------------------------------------------------
+
+
 
     return {
       loading,
@@ -444,6 +555,7 @@ export default {
       expenseDescription, expenseDescription_validationText,
       expense_dt, expenses, filters, formatDate, formatCurrency, titleFilter, dateFilter, amountFilter,
       userExpenseCategory, exportCSV, formatDataBeforeExport,
+      openEditExpense,
       clearInputValue, clearValidationText, decideRequest
     };
   }

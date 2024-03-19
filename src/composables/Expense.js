@@ -358,3 +358,40 @@ export const extractExpenseCategory = (expenses) => {
   // Return the array of same content
   return sortedCategory;
 }
+
+// To get the data which user click in the data table
+export const getSpecificExpense = (expense_object) => {
+  const expense = {...expense_object};
+
+  return expense;
+}
+
+// To compare the old data and new data has change or not
+export const compareExpenseData = (oldExpense, newExpense) => {
+  // Compare the title
+  if(oldExpense.title !== newExpense.title){
+    return true;
+  }
+
+  // Compare the date
+  if(oldExpense.date.getFullYear() !== newExpense.date.getFullYear() || oldExpense.date.getMonth() !== newExpense.date.getMonth() || oldExpense.date.getDate() !== newExpense.date.getDate()){
+    return true;
+  }
+
+  // Compare the amount
+  if(oldExpense.amount !== newExpense.amount){
+    return true;
+  }
+
+  // Compare the category
+  if(oldExpense.category_id !== newExpense.category_id){
+    return true;
+  }
+
+  // Compare the description
+  if(oldExpense.description !== newExpense.description){
+    return true;
+  }
+
+  return false;
+}
