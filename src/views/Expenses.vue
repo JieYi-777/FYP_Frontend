@@ -118,23 +118,23 @@
             </template>
 
             <template #end>
-              <Button label="Export" icon="pi pi-upload" severity="info"  />
+              <Button label="Export" icon="pi pi-upload" severity="info" @click="exportCSV($event)" />
             </template>
           </Toolbar>
         </div>
         
         <!-- The data table that show all expenses (same class with the toolbar's width) -->
         <div class="expense-toolbar">
-          <DataTable ref="expense_dt" :value="expenses" dataKey="id" removableSort stripedRows
+          <DataTable ref="expense_dt" :value="expenses" dataKey="id" removableSort stripedRows exportFilename="Expense Log"
             v-model:filters="filters" filterDisplay="row" :globalFilterFields="['title', 'date', 'amount', 'category_name']"
-            :paginator="true" :rows="10" :rowsPerPageOptions="[5, 10, 20, 50]" 
+            :paginator="true" :rows="10" :rowsPerPageOptions="[5, 10, 20, 50]" :exportFunction="formatDataBeforeExport"
             paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
             currentPageReportTemplate="Showing {first} to {last} of {totalRecords} expenses">
 
             <!-- Header of the data table -->
             <template #header>
               <div class="flex flex-wrap gap-2 items-center justify-between">
-                <h4 class="m-0">Expenses</h4>
+                <h3 class="m-0">Expense Log</h3>
                 
                 <IconField iconPosition="left">
                   <InputIcon>
@@ -151,7 +151,7 @@
             <!-- The 'title' column of the data table -->
             <Column field="title" header="Title" sortable :filterMatchModeOptions="titleFilter">
               <template #filter="{ filterModel, filterCallback }">
-                <InputText v-model="filterModel.value" type="text" @input="filterCallback()" class="p-column-filter" />
+                <InputText v-model="filterModel.value" type="text" @input="filterCallback()" class="p-column-filter min-w-32" />
               </template>
             </Column>
 
@@ -162,7 +162,7 @@
               </template>
 
               <template #filter="{ filterModel, filterCallback }">
-                <Calendar v-model="filterModel.value" dateFormat="dd/mm/yy" @update:modelValue="filterCallback" :maxDate="maxDate"/>
+                <Calendar v-model="filterModel.value" dateFormat="dd/mm/yy" @update:modelValue="filterCallback" :maxDate="maxDate" class="min-w-32"/>
               </template>
             </Column>
 
@@ -173,19 +173,23 @@
               </template>
 
               <template #filter="{ filterModel, filterCallback }">
-                <InputNumber v-model="filterModel.value" locale="ms-MY" mode="currency" currency="MYR" @input="(event) => {filterModel.value = event.value; filterCallback()}" />
+                <InputNumber v-model="filterModel.value" locale="ms-MY" mode="currency" currency="MYR" class="min-w-32"
+                  @input="(event) => {filterModel.value = event.value; filterCallback()}" />
               </template>
             </Column>
 
             <!-- The 'category name' column -->
             <Column field="category_name" header="Category" sortable :showFilterMenu="false">
               <template #filter="{ filterModel, filterCallback }">
-                <MultiSelect v-model="filterModel.value" @change="filterCallback()" :options="userExpenseCategory" class="p-column-filter" :maxSelectedLabels="1" />
+                <MultiSelect v-model="filterModel.value" @change="filterCallback()" :options="userExpenseCategory" class="p-column-filter min-w-32" :maxSelectedLabels="1" />
               </template>
             </Column>
 
+            <!-- The hidden 'description' column, used for export in csv-->
+            <Column field="description" header="Description" class="hidden"></Column>
+
             <!-- The edit and delete button -->
-            <Column :exportable="false" style="min-width:8rem">
+            <Column :exportable="false" class="min-w-32">
               <template #body="slotProps">
                 <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="editProduct(slotProps.data)" />
                 <Button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDeleteProduct(slotProps.data)" />
@@ -413,6 +417,24 @@ export default {
     // Call the function
     getExpenses();
 
+    const formatDataBeforeExport = (object) => {
+      console.log(object)
+
+      if(object.field === 'date'){
+        return formatDate(object.data);
+      }
+      else if(object.field === 'amount'){
+        return formatCurrency(object.data);
+      }
+      else{
+        return object.data;
+      }
+    }
+
+    const exportCSV = () => {
+      expense_dt.value.exportCSV();
+    };
+
     return {
       loading,
       expenseDialog, dialogHeaderTitle, openExpenseDialog, closeExpenseDialog,
@@ -421,7 +443,7 @@ export default {
       selectedCategory, expenseCategoryList, expenseCategory_validationText, hideExpenseCategoryValidationText,
       expenseDescription, expenseDescription_validationText,
       expense_dt, expenses, filters, formatDate, formatCurrency, titleFilter, dateFilter, amountFilter,
-      userExpenseCategory,
+      userExpenseCategory, exportCSV, formatDataBeforeExport,
       clearInputValue, clearValidationText, decideRequest
     };
   }

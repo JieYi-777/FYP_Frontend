@@ -353,6 +353,8 @@ export const extractExpenseCategory = (expenses) => {
     usedExpenseCategory.add(expense.category_name);
   });
 
+  const sortedCategory = [...usedExpenseCategory].sort();
+
   // Return the array of same content
-  return [...usedExpenseCategory];
+  return sortedCategory;
 }
