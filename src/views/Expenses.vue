@@ -6,6 +6,9 @@
   <!-- Toast -->
   <Toast position="bottom-right" class="toast" />
 
+  <!-- Confirm Dialog -->
+  <ConfirmDialog group="delete-expense"></ConfirmDialog>
+
   <!-- This is the dialog used for creating new expense and edit expense -->
   <Dialog v-model:visible="expenseDialog" :draggable="false" modal class="dialog" @hide="clearInputValue" @after-hide="clearValidationText">
 
@@ -192,7 +195,7 @@
             <Column :exportable="false" class="min-w-32">
               <template #body="slotProps">
                 <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="openEditExpense(slotProps.data)" />
-                <Button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDeleteProduct(slotProps.data)" />
+                <Button icon="pi pi-trash" outlined rounded severity="danger" @click="deleteExpenseConfirm(slotProps.data)" />
               </template>
             </Column>
 
@@ -431,7 +434,6 @@ export default {
 
     // Format the data in the data table before export to csv
     const formatDataBeforeExport = (object) => {
-      console.log(object)
 
       if(object.field === 'date'){
         return formatDate(object.data);
@@ -476,8 +478,6 @@ export default {
 
       if(checkValidInput(expenseTitle.value, expenseTitle_validationText.value) && checkValidInput(expenseAmount.value, expenseAmount_validationText.value)
         && checkValidInput(selectedCategory.value, expenseCategory_validationText.value) && !expenseDescription_validationText.value){
-
-        
 
         const newExpenseData = {
           title: expenseTitle.value.trim(),
@@ -544,7 +544,62 @@ export default {
 
     // ------------------------------------------------Delete expense related------------------------------------------------
 
+    // To call the confirm dialog before delete the expense
+    const deleteExpenseConfirm = (expense_obj) => {
+      confirm.require({
+        group: 'delete-expense',
+        message: 'Confirm deletion of the expense?',
+        header: 'Delete Expense',
+        icon: 'pi pi-exclamation-triangle',
+        rejectClass: 'p-button-secondary p-button-sm',
+        acceptClass: 'p-button-danger',
+        rejectLabel: 'No',
+        acceptLabel: 'Yes',
+        accept: () => {
+          // Start the loading spinner
+          startLoading();
 
+          // Get the token
+          const token = store.getters.getToken;
+
+          // To get the expense id
+          const expense = {...expense_obj};
+          const expense_id = expense.id;
+
+          // Send the request to change the value of notification_enabled to false
+          axios1.delete(`/expense/delete-expense/${expense_id}`,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          }).then(response => {
+            // Hide the loading spinner
+            stopLoading();
+
+            // Call the function to get all the expenses (the function is defined below)
+            getExpenses();
+
+            // Show the toast
+            toast.add({ severity: 'success', summary: 'Expense Deleted', detail: response.data.message, life: 3000 });
+
+          }).catch(error => {
+            // Hide the loading spinner
+            stopLoading();
+
+            const status = error.response?.status || 500;
+            const data = error.response.data.message? error.response.data : { message: 'An error occurred while updating expense.' };
+            console.error(error);
+
+            if(status === 404){
+              toast.add({ severity: 'error', summary: data.message, detail: 'Cannot delete expense. Please check with us for assistance.', life: 3000 });
+            }
+            else{
+              toast.add({ severity: 'error', summary: 'Error', detail: data.message, life: 3000 });
+            }
+          })
+        },
+      });
+    }
 
     return {
       loading,
@@ -555,7 +610,7 @@ export default {
       expenseDescription, expenseDescription_validationText,
       expense_dt, expenses, filters, formatDate, formatCurrency, titleFilter, dateFilter, amountFilter,
       userExpenseCategory, exportCSV, formatDataBeforeExport,
-      openEditExpense,
+      openEditExpense, deleteExpenseConfirm,
       clearInputValue, clearValidationText, decideRequest
     };
   }
