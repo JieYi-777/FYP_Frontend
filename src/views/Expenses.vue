@@ -151,7 +151,7 @@
             <!-- The 'title' column of the data table -->
             <Column field="title" header="Title" sortable :filterMatchModeOptions="titleFilter">
               <template #filter="{ filterModel, filterCallback }">
-                <InputText v-model="filterModel.value" type="text" @input="filterCallback()" class="p-column-filter" placeholder="Search by title" />
+                <InputText v-model="filterModel.value" type="text" @input="filterCallback()" class="p-column-filter" />
               </template>
             </Column>
 
@@ -162,7 +162,7 @@
               </template>
 
               <template #filter="{ filterModel, filterCallback }">
-                <Calendar v-model="filterModel.value" dateFormat="dd/mm/yy" placeholder="dd/mm/yyyy" @update:modelValue="filterCallback" :maxDate="maxDate"/>
+                <Calendar v-model="filterModel.value" dateFormat="dd/mm/yy" @update:modelValue="filterCallback" :maxDate="maxDate"/>
               </template>
             </Column>
 
@@ -178,7 +178,20 @@
             </Column>
 
             <!-- The 'category name' column -->
-            <Column field="category_name" header="Category" sortable></Column>
+            <Column field="category_name" header="Category" sortable :showFilterMenu="false">
+              <template #filter="{ filterModel, filterCallback }">
+                <MultiSelect v-model="filterModel.value" @change="filterCallback()" :options="userExpenseCategory" class="p-column-filter" :maxSelectedLabels="1" />
+              </template>
+            </Column>
+
+            <!-- The edit and delete button -->
+            <Column :exportable="false" style="min-width:8rem">
+              <template #body="slotProps">
+                <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="editProduct(slotProps.data)" />
+                <Button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDeleteProduct(slotProps.data)" />
+              </template>
+            </Column>
+
           </DataTable>
         </div>
 
@@ -206,11 +219,12 @@ import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import IconField from 'primevue/iconfield';
 import InputIcon from 'primevue/inputicon';
+import MultiSelect from 'primevue/multiselect';
 
 import { controlExpenseDialog, expenseTitleValidation, expenseAmountValidation, createExpenseDate,
   getExpenseCategory, expenseCategoryValidation, expenseDescriptionValidation,
   getExpenseDataRequest, formatDate, formatCurrency, createFilters, 
-  titleFilterOptions, dateFilterOptions, amountFilterOptions} from '../composables/Expense';
+  titleFilterOptions, dateFilterOptions, amountFilterOptions, extractExpenseCategory} from '../composables/Expense';
 import { clearValue } from '../composables/Profile';
 import { checkValidInput } from '../composables/UserRegisterValidation';
 import { controlLoading } from '../composables/Loading';
@@ -221,7 +235,7 @@ import axios1 from '@/axios.service'
 
 export default {
   components: { Loading, Toast, Card, Toolbar, Button, Dialog, InputGroup, InputGroupAddon, InputText, InputNumber, 
-    Calendar, Dropdown, Textarea, DataTable, Column, IconField, InputIcon },
+    Calendar, Dropdown, Textarea, DataTable, Column, IconField, InputIcon, MultiSelect },
   setup() {
 
     // ----------------------------------------Common object--------------------------------------------------------
@@ -366,6 +380,9 @@ export default {
     // The expenses objects ref
     const expenses = ref(null);
 
+    // The user expense categories
+    const userExpenseCategory = ref(null);
+
     // To get the filters apply to the data table
     const { filters } = createFilters();
 
@@ -385,6 +402,9 @@ export default {
 
         // Update the expenses ref with the fetched value
         expenses.value = expenses_objects.value;
+
+        // To get the latest category name used by user
+        userExpenseCategory.value = extractExpenseCategory(expenses.value);
       } catch (error) {
         console.error('Error fetching expenses:', error);
       }
@@ -401,6 +421,7 @@ export default {
       selectedCategory, expenseCategoryList, expenseCategory_validationText, hideExpenseCategoryValidationText,
       expenseDescription, expenseDescription_validationText,
       expense_dt, expenses, filters, formatDate, formatCurrency, titleFilter, dateFilter, amountFilter,
+      userExpenseCategory,
       clearInputValue, clearValidationText, decideRequest
     };
   }

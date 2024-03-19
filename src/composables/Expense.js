@@ -250,7 +250,8 @@ export const createFilters = () => {
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
     title: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
     date: { value: null, matchMode: FilterMatchMode.DATE_IS },
-    amount: { value: null, matchMode: FilterMatchMode.EQUALS }
+    amount: { value: null, matchMode: FilterMatchMode.EQUALS },
+    category_name: { value: null, matchMode: FilterMatchMode.IN }
   });
 
   return { filters };
@@ -342,4 +343,16 @@ export const amountFilterOptions = () => {
   ])
 
   return { amountFilter }
+}
+
+// To get the expense category used by user
+export const extractExpenseCategory = (expenses) => {
+  const usedExpenseCategory = new Set();
+
+  expenses.forEach(expense => {
+    usedExpenseCategory.add(expense.category_name);
+  });
+
+  // Return the array of same content
+  return [...usedExpenseCategory];
 }
