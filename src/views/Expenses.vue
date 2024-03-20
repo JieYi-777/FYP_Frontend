@@ -113,7 +113,7 @@
       <div class="flex flex-col items-center">
 
         <!-- The chart to show the total expenses -->
-        <div class="mb-4 content total-expense-chart-center" v-show="expenses.length !== 0">
+        <div class="mb-4 content total-expense-chart-center" v-if="expenses.length !== 0">
           <apexchart type="donut" :options="chartOptions" :series="series" class="total-expense-chart"></apexchart>
         </div>
 
