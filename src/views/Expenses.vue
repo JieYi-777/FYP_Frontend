@@ -113,25 +113,25 @@
       <div class="flex flex-col items-center">
 
         <!-- The chart to show the total expenses -->
-        <div class="mb-4 expense-content total-expense-chart-center">
+        <div class="mb-4 content total-expense-chart-center" v-show="expenses.length !== 0">
           <apexchart type="donut" :options="chartOptions" :series="series" class="total-expense-chart"></apexchart>
         </div>
 
         <!-- The toolbar above the expense data table -->
-        <div class="expense-content mb-4">
+        <div class="content mb-4">
           <Toolbar>
             <template #start>
               <Button label="New" icon="pi pi-plus" severity="primary" class="mr-2" @click="openExpenseDialog('add')"/>
             </template>
 
             <template #end>
-              <Button label="Export" icon="pi pi-upload" severity="info" @click="exportCSV($event)" />
+              <Button label="Export" icon="pi pi-upload" severity="info" @click="exportCSV($event)" :disabled="expenses.length === 0"/>
             </template>
           </Toolbar>
         </div>
         
         <!-- The data table that show all expenses (same class with the toolbar's width) -->
-        <div class="expense-content">
+        <div class="content">
           <DataTable ref="expense_dt" :value="expenses" dataKey="id" removableSort stripedRows exportFilename="Expense Log"
             v-model:filters="filters" filterDisplay="row" :globalFilterFields="['title', 'date', 'amount', 'category_name']"
             :paginator="true" :rows="10" :rowsPerPageOptions="[5, 10, 20, 50]" :exportFunction="formatDataBeforeExport"
@@ -403,7 +403,7 @@ export default {
     const expense_dt = ref();
 
     // The expenses objects ref
-    const expenses = ref(null);
+    const expenses = ref([]);
 
     // The user expense categories
     const userExpenseCategory = ref(null);
