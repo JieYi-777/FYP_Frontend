@@ -83,9 +83,14 @@
   @apply m-5 rounded-none;
 }
 
-/* For expense responsive toolbar */
-.expense-content {
+/* For content (expense, budget webpage) responsive toolbar */
+.content {
   @apply w-full sm:w-4/5;
+}
+
+/* For budget data view */
+.budget-list {
+  @apply w-full sm:w-3/5;
 }
 
 /* To control the total expense chart */
