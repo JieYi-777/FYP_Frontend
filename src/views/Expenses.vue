@@ -242,7 +242,8 @@ import { controlExpenseDialog, expenseTitleValidation, expenseAmountValidation, 
 import { clearValue } from '../composables/Profile';
 import { checkValidInput } from '../composables/UserRegisterValidation';
 import { controlLoading } from '../composables/Loading';
-import { ref, watch } from 'vue';
+import { chartColors } from '../composables/Chart';
+import { ref } from 'vue';
 import { useStore } from 'vuex'
 import { useToast } from 'primevue/usetoast';
 import { useConfirm } from "primevue/useconfirm";
@@ -622,6 +623,9 @@ export default {
     const series = ref([]);
     const chartOptions = ref({});
 
+    // Get the chart colors
+    const { colors } = chartColors();
+
     // To change the label on time
     const changeChartLabel = (arr) => {
       chartOptions.value = {
@@ -630,21 +634,7 @@ export default {
           fontFamily: '"Inter var", sans-serif',
         },
         labels: arr,
-        colors: [
-          '#3B82F6', // Primary color
-          '#F87171', // Red
-          '#34D399', // Green
-          '#FBBF24', // Yellow
-          '#7C3AED', // Purple
-          '#F97316', // Orange
-          '#6B7280', // Gray
-          '#60A5FA', // Light Blue
-          '#F472B6', // Pink
-          '#10B981', // Teal
-          '#F59E0B', // Amber
-          '#4F46E5', // Indigo
-          '#4B5563'  // Charcoal
-        ],
+        colors: colors,
         plotOptions: {
           pie: {
             donut: {
@@ -669,7 +659,7 @@ export default {
             }
           }
         },
-        responsive: [
+        responsive: [   // The responsive label and value in center of the donut chart
           {
           breakpoint: 480,
           options: {
@@ -838,7 +828,3 @@ export default {
   }
 }
 </script>
-
-<style>
-
-</style>
