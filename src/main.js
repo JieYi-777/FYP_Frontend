@@ -17,7 +17,11 @@ import BadgeDirective from 'primevue/badgedirective';
 import Tooltip from 'primevue/tooltip';
 import ConfirmationService from 'primevue/confirmationservice';
 
+// Apex Chart
+import VueApexCharts from "vue3-apexcharts";
+
 
 createApp(App).use(store).use(router)
 .use(PrimeVue, { ripple: true }).use(ToastService).use(ConfirmationService).directive('ripple', Ripple).directive('badge', BadgeDirective).directive('tooltip', Tooltip)
+.use(VueApexCharts)
 .mount('#app');

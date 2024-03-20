@@ -395,3 +395,23 @@ export const compareExpenseData = (oldExpense, newExpense) => {
 
   return false;
 }
+
+// To get the total amount for each category
+export const getTotalByCategory = (expenses, categories) => {
+  const totalByCategory = {};
+  
+  // Initialize total amount for each category to 0
+  categories.forEach(category => {
+    totalByCategory[category] = 0;
+  });
+  
+  // Calculate total amount for each category
+  expenses.forEach(expense => {
+    const { category_name, amount } = expense;
+    if (categories.includes(category_name)) {
+      totalByCategory[category_name] += amount;
+    }
+  });
+
+  return totalByCategory;
+}

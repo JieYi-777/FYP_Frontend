@@ -84,6 +84,15 @@
 }
 
 /* For expense responsive toolbar */
-.expense-toolbar {
+.expense-content {
   @apply w-full sm:w-4/5;
+}
+
+/* To control the total expense chart */
+.total-expense-chart {
+  @apply w-full md:w-4/5 lg:w-3/5;
+}
+
+.total-expense-chart-center {
+  @apply md:flex md:justify-center;
 }

@@ -111,10 +111,14 @@
 
     <template #content>
       <div class="flex flex-col items-center">
-        <h3 class="mb-4">This is Expenses Chart</h3>
+
+        <!-- The chart to show the total expenses -->
+        <div class="mb-4 expense-content total-expense-chart-center">
+          <apexchart type="donut" :options="chartOptions" :series="series" class="total-expense-chart"></apexchart>
+        </div>
 
         <!-- The toolbar above the expense data table -->
-        <div class="expense-toolbar mb-4">
+        <div class="expense-content mb-4">
           <Toolbar>
             <template #start>
               <Button label="New" icon="pi pi-plus" severity="primary" class="mr-2" @click="openExpenseDialog('add')"/>
@@ -127,7 +131,7 @@
         </div>
         
         <!-- The data table that show all expenses (same class with the toolbar's width) -->
-        <div class="expense-toolbar">
+        <div class="expense-content">
           <DataTable ref="expense_dt" :value="expenses" dataKey="id" removableSort stripedRows exportFilename="Expense Log"
             v-model:filters="filters" filterDisplay="row" :globalFilterFields="['title', 'date', 'amount', 'category_name']"
             :paginator="true" :rows="10" :rowsPerPageOptions="[5, 10, 20, 50]" :exportFunction="formatDataBeforeExport"
@@ -137,7 +141,7 @@
             <!-- Header of the data table -->
             <template #header>
               <div class="flex flex-wrap gap-2 items-center justify-between">
-                <h3 class="m-0">Expense Log</h3>
+                <h2 class="m-0">Expense Log</h2>
                 
                 <IconField iconPosition="left">
                   <InputIcon>
@@ -228,16 +232,17 @@ import IconField from 'primevue/iconfield';
 import InputIcon from 'primevue/inputicon';
 import MultiSelect from 'primevue/multiselect';
 import ConfirmDialog from 'primevue/confirmdialog';
+import VueApexCharts from 'vue3-apexcharts';
 
 import { controlExpenseDialog, expenseTitleValidation, expenseAmountValidation, createExpenseDate,
   getExpenseCategory, expenseCategoryValidation, expenseDescriptionValidation,
   getExpenseDataRequest, formatDate, formatCurrency, createFilters, titleFilterOptions,
   dateFilterOptions, amountFilterOptions, extractExpenseCategory, getSpecificExpense,
-  compareExpenseData} from '../composables/Expense';
+  compareExpenseData, getTotalByCategory} from '../composables/Expense';
 import { clearValue } from '../composables/Profile';
 import { checkValidInput } from '../composables/UserRegisterValidation';
 import { controlLoading } from '../composables/Loading';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { useStore } from 'vuex'
 import { useToast } from 'primevue/usetoast';
 import { useConfirm } from "primevue/useconfirm";
@@ -245,7 +250,7 @@ import axios1 from '@/axios.service'
 
 export default {
   components: { Loading, Toast, Card, Toolbar, Button, Dialog, InputGroup, InputGroupAddon, InputText, InputNumber, 
-    Calendar, Dropdown, Textarea, DataTable, Column, IconField, InputIcon, MultiSelect, ConfirmDialog },
+    Calendar, Dropdown, Textarea, DataTable, Column, IconField, InputIcon, MultiSelect, ConfirmDialog, apexchart: VueApexCharts, },
   setup() {
 
     // ----------------------------------------Common object--------------------------------------------------------
@@ -424,6 +429,13 @@ export default {
 
         // To get the latest category name used by user
         userExpenseCategory.value = extractExpenseCategory(expenses.value);
+
+        // To get the total amount for each category (used for chart)
+        chartData.value = getTotalByCategory(expenses.value, userExpenseCategory.value);
+        
+        // Update the chart data
+        series.value = Object.values(chartData.value);
+        changeChartLabel(Object.keys(chartData.value));
       } catch (error) {
         console.error('Error fetching expenses:', error);
       }
@@ -601,9 +613,219 @@ export default {
       });
     }
 
+    // --------------------------------------------Apex chart related----------------------------------------------------
+
+    // To get the label and amount data
+    const chartData = ref(null);
+
+    // The data used in chart
+    const series = ref([]);
+    const chartOptions = ref({});
+
+    // To change the label on time
+    const changeChartLabel = (arr) => {
+      chartOptions.value = {
+        chart: {
+          type: 'donut',
+          fontFamily: '"Inter var", sans-serif',
+        },
+        labels: arr,
+        colors: [
+          '#3B82F6', // Primary color
+          '#F87171', // Red
+          '#34D399', // Green
+          '#FBBF24', // Yellow
+          '#7C3AED', // Purple
+          '#F97316', // Orange
+          '#6B7280', // Gray
+          '#60A5FA', // Light Blue
+          '#F472B6', // Pink
+          '#10B981', // Teal
+          '#F59E0B', // Amber
+          '#4F46E5', // Indigo
+          '#4B5563'  // Charcoal
+        ],
+        plotOptions: {
+          pie: {
+            donut: {
+              
+              labels: {
+                show: true,
+                name: {
+                  show: true,
+                  offsetY: 0,
+                  fontSize: '30px'
+                },
+                value: {
+                  show: true,
+                  offsetY: 20,
+                  fontSize: '24px'
+                },
+                total: {
+                  show: true,
+                  fontSize: '30px'
+                }
+              }
+            }
+          }
+        },
+        responsive: [
+          {
+          breakpoint: 480,
+          options: {
+            plotOptions: {
+              pie: {
+                donut: {
+                  
+                  labels: {
+                    show: true,
+                    name: {
+                      show: true,
+                      offsetY: -2,
+                      fontSize: '12px',
+                    },
+                    value: {
+                      show: true,
+                      offsetY: 0,
+                      fontSize: '12px',
+                    },
+                    total: {
+                      show: true,
+                      fontSize: '12px',
+                    }
+                  }
+                }
+              }
+            }
+          },
+        },
+        {
+          breakpoint: 640,
+          options: {
+            legend: {
+              position: "bottom"
+            },
+            plotOptions: {
+              pie: {
+                donut: {
+                  
+                  labels: {
+                    show: true,
+                    name: {
+                      show: true,
+                      offsetY: -4,
+                      fontSize: '18px',
+                    },
+                    value: {
+                      show: true,
+                      offsetY: 4,
+                      fontSize: '14px',
+                    },
+                    total: {
+                      show: true,
+                      fontSize: '18px',
+                    }
+                  }
+                }
+              }
+            }
+          },
+        },
+        {
+          breakpoint: 768,
+          options: {
+            plotOptions: {
+              pie: {
+                donut: {
+                  
+                  labels: {
+                    show: true,
+                    name: {
+                      show: true,
+                      offsetY: -2,
+                      fontSize: '20px',
+                    },
+                    value: {
+                      show: true,
+                      offsetY: 6,
+                      fontSize: '16px',
+                    },
+                    total: {
+                      show: true,
+                      fontSize: '20px',
+                    }
+                  }
+                }
+              }
+            }
+          },
+        },
+        {
+          breakpoint: 1024,
+          options: {
+            plotOptions: {
+              pie: {
+                donut: {
+                  
+                  labels: {
+                    show: true,
+                    name: {
+                      show: true,
+                      offsetY: -1,
+                      fontSize: '22px',
+                    },
+                    value: {
+                      show: true,
+                      offsetY: 9,
+                      fontSize: '18px',
+                    },
+                    total: {
+                      show: true,
+                      fontSize: '22px',
+                    }
+                  }
+                }
+              }
+            }
+          },
+        },
+        {
+          breakpoint: 1280,
+          options: {
+            plotOptions: {
+              pie: {
+                donut: {
+                  
+                  labels: {
+                    show: true,
+                    name: {
+                      show: true,
+                      offsetY: 0,
+                      fontSize: '24px',
+                    },
+                    value: {
+                      show: true,
+                      offsetY: 10,
+                      fontSize: '18px',
+                    },
+                    total: {
+                      show: true,
+                      fontSize: '24px',
+                    }
+                  }
+                }
+              }
+            }
+          },
+        }
+        ],
+      }
+    }
+
     return {
       loading,
       expenseDialog, dialogHeaderTitle, openExpenseDialog, closeExpenseDialog,
+      clearInputValue, clearValidationText, decideRequest,
       expenseTitle, expenseTitle_validationText, expenseAmount, expenseAmount_validationText, callCheckAmount,
       expenseDate, maxDate, resetExpenseDate, resetDateWhenBlur,
       selectedCategory, expenseCategoryList, expenseCategory_validationText, hideExpenseCategoryValidationText,
@@ -611,7 +833,7 @@ export default {
       expense_dt, expenses, filters, formatDate, formatCurrency, titleFilter, dateFilter, amountFilter,
       userExpenseCategory, exportCSV, formatDataBeforeExport,
       openEditExpense, deleteExpenseConfirm,
-      clearInputValue, clearValidationText, decideRequest
+      series, chartOptions
     };
   }
 }
