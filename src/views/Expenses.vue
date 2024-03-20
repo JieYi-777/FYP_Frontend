@@ -153,7 +153,7 @@
             </template>
 
             <!-- To show it when no expense is found after filtering -->
-            <template #empty> No expenses found. </template>
+            <template #empty> <span class="font-bold">No expenses found.</span> </template>
 
             <!-- The 'title' column of the data table -->
             <Column field="title" header="Title" sortable :filterMatchModeOptions="titleFilter">

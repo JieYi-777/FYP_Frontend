@@ -30,3 +30,23 @@ export const controlBudgetDialog = () => {
 
   return { budgetDialog, dialogHeaderTitle, openBudgetDialog, closeBudgetDialog };
 }
+
+// To extract the expense category id with name
+export const extractExpenseIdCategory = (expenses) => {
+  // Create an object to store unique category IDs and names
+  const categoryObj = {};
+
+  // Iterate through expenses to collect unique category IDs and names
+  expenses.forEach(expense => {
+    categoryObj[expense.category_id] = expense.category_name;
+  });
+
+  // Convert the object into an array of { id, name } objects
+  const categoryArray = Object.entries(categoryObj).map(([id, name]) => ({ id, name }));
+
+  // Sort the categoryArray based on the name attribute
+  categoryArray.sort((a, b) => a.name.localeCompare(b.name));
+
+  // Return the sorted array of category objects
+  return categoryArray;
+};
