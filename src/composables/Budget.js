@@ -78,7 +78,7 @@ export const extractExpenseIdCategory = (expenses) => {
   // Iterate through expenses to collect unique category IDs and names
   expenses.forEach(expense => {
     // Convert category_id to integer
-    const categoryId = parseInt(expense.category_id);
+    const categoryId = expense.category_id;
 
     // Store the category name with the corresponding ID
     categoryObj[categoryId] = expense.category_name;
@@ -106,3 +106,41 @@ export const disableCategoryOptions = (userExpenseCategoryList, budgets) => {
 
   return userExpenseCategoryList;
 };
+
+// To validate the budget amount
+export const budgetAmountValidation = () => {
+
+  // To reference to the budget amount value and budget amount validation text
+  const budgetAmount = ref(null);
+  const budgetAmount_validationText = ref('');
+
+  // To validate the budget amount input
+  // Note: the budgetAmount is set again to same value (so fix) because the validation text visibility affect the value
+  const checkAmount = (amount) => {
+    const amountPattern = /^\d{1,7}(\.\d{1,2})?$/;
+
+    if (amount == null || amount <= 0) {
+      budgetAmount_validationText.value = 'Please enter your budget amount.';
+      budgetAmount.value = amount;
+    }
+    else if(!amountPattern.test(amount)){
+      budgetAmount_validationText.value = 'Maximum: 9 digits';
+      budgetAmount.value = amount;
+    }
+    else {
+      budgetAmount_validationText.value = '';
+      budgetAmount.value = amount;
+    }
+  }
+
+  // Call the check amount validation when input change
+  const callCheckAmount = (newValue) => {
+    // Extract the value from newValue
+    const amount = newValue.value;
+
+    // Perform validation when the input value changes
+    checkAmount(amount);
+  };
+
+  return { budgetAmount, budgetAmount_validationText, callCheckAmount };
+}
