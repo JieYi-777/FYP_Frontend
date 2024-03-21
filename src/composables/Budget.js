@@ -1,4 +1,6 @@
+import axios1 from "../axios.service";
 import { ref } from "vue";
+import { useStore } from "vuex";
 
 // The ref and function related to the budget dialog
 export const controlBudgetDialog = () => {
@@ -31,6 +33,42 @@ export const controlBudgetDialog = () => {
   return { budgetDialog, dialogHeaderTitle, openBudgetDialog, closeBudgetDialog };
 }
 
+// To get all budget data of user
+export const getBudgetDataRequest = async() => {
+  // Budget data ref
+  const budgets = ref(null);
+
+  // Access the store object
+  const store = useStore();
+
+  // Get the token
+  const token = store.getters.getToken;
+
+  try {
+
+    // Fetch the budget
+    const response = await axios1.get('/budget', 
+    {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    // Get budget data
+    budgets.value =  response.data.budgets;
+
+    // Change budget amount to float type
+    budgets.value.forEach((budget) => {
+      budget.amount = parseFloat(budget.amount);
+    });
+
+  } catch (error) {
+    console.error('Error fetching budgets:', error);
+  }
+
+  return { budgets };
+}
+
 // To extract the expense category id with name
 export const extractExpenseIdCategory = (expenses) => {
   // Create an object to store unique category IDs and names
@@ -49,4 +87,17 @@ export const extractExpenseIdCategory = (expenses) => {
 
   // Return the sorted array of category objects
   return categoryArray;
+};
+
+// To disable the category options if already been used
+export const disableCategoryOptions = (userExpenseCategoryList, budgets) => {
+  userExpenseCategoryList.forEach(category => {
+    if (budgets.some(budget => budget.category_id === category.id)) {
+      category.disabled = true;
+    } else {
+      category.disabled = false;
+    }
+  });
+
+  return userExpenseCategoryList;
 };

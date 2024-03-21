@@ -21,7 +21,7 @@
           <span>Category</span>
         </InputGroupAddon>
 
-        <Dropdown placeholder="Budget Category" v-model="selectedCategory" :options="userExpenseCategoryList" optionLabel="name"
+        <Dropdown placeholder="Budget Category" v-model="selectedCategory" :options="budgetCategoryOptions" optionLabel="name"
           checkmark :class="{'p-invalid': budgetCategory_validationText}" @change="hideBudgetCategoryValidationText"/>
       </InputGroup>
     </div>
@@ -106,10 +106,10 @@ import Dropdown from 'primevue/dropdown';
 import InputNumber from 'primevue/inputnumber';
 
 import { controlLoading } from '../composables/Loading';
-import { controlBudgetDialog, extractExpenseIdCategory } from '../composables/Budget';
+import { controlBudgetDialog, getBudgetDataRequest, extractExpenseIdCategory, disableCategoryOptions } from '../composables/Budget';
 import { getExpenseDataRequest, expenseCategoryValidation, expenseAmountValidation } from '../composables/Expense';
 import { clearValue } from '../composables/Profile';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { useStore } from 'vuex'
 import { useToast } from 'primevue/usetoast';
 
@@ -134,17 +134,43 @@ export default {
     // To control the budget dialog
     const { budgetDialog, dialogHeaderTitle, openBudgetDialog, closeBudgetDialog } = controlBudgetDialog();
 
+    // The user budgets ref
+    const budgets = ref([]);
+
     // The user expenses ref
     const expenses = ref([]);
 
     // The expense category used by user
     const userExpenseCategoryList = ref([]);
 
+    // The available budget category, after filter the used category from the user's expense categories
+    const budgetCategoryOptions = computed(() => {
+      // Get the available budget category
+      return disableCategoryOptions(userExpenseCategoryList.value, budgets.value);
+    })
+
     // The selected category and the validation text ref and function
     const { selectedCategory, expenseCategory_validationText: budgetCategory_validationText, hideExpenseCategoryValidationText: hideBudgetCategoryValidationText } = expenseCategoryValidation();
 
     // The budget amount ref and its validation text ref
     const { expenseAmount: budgetAmount, expenseAmount_validationText: budgetAmount_validationText, callCheckAmount } = expenseAmountValidation();
+
+    // The function to call the getBudgetDataRequest
+    const getBudgets = async() => {
+      try {
+
+        // Call getBudgetDataRequest to fetch the budgets
+        const { budgets: budget_objects } = await getBudgetDataRequest();
+
+        // Update the budgets ref with the fetched value
+        budgets.value = budget_objects.value;
+      } catch (error) {
+        console.error('Error fetching budgets:', error);
+      }
+    };
+
+    // Call the function to get budget
+    getBudgets();
 
     // The function to call the getExpenseRequest
     const getExpenses = async() => {
@@ -183,7 +209,7 @@ export default {
     return {
       loading, 
       budgetDialog, dialogHeaderTitle, openBudgetDialog, closeBudgetDialog, clearInputValue, clearValidationText,
-      userExpenseCategoryList, selectedCategory, budgetCategory_validationText, hideBudgetCategoryValidationText,
+      budgetCategoryOptions, selectedCategory, budgetCategory_validationText, hideBudgetCategoryValidationText,
       budgetAmount, budgetAmount_validationText, callCheckAmount,
     };
 
