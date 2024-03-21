@@ -88,11 +88,6 @@
   @apply w-full sm:w-4/5;
 }
 
-/* For budget data view */
-.budget-list {
-  @apply w-full sm:w-3/5;
-}
-
 /* To control the total expense chart */
 .total-expense-chart {
   @apply w-full md:w-4/5 lg:w-3/5;

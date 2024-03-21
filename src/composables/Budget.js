@@ -138,3 +138,52 @@ export const budgetAmountValidation = () => {
 
   return { budgetAmount, budgetAmount_validationText, callCheckAmount };
 }
+
+// To extract the amount for each category, for current month
+export const getCurrentMonthExpense = (expenses) => {
+
+  // Get the current month
+  const currentMonth = new Date().getMonth() + 1;
+
+  // Initialize an object to store accumulated amounts for each category
+  const categoryAmounts = {};
+
+  // Iterate through the expenses data
+  expenses.forEach(expense => {
+    // Parse the date of the expense
+    const expenseDate = expense.date
+    
+    // Check if the expense date is within the current month
+    if (expenseDate.getMonth() + 1 === currentMonth) {
+        // Accumulate the amount for the category
+        let categoryId = expense.category_id;
+        let amount = expense.amount;
+        
+        if (categoryId in categoryAmounts) {
+            categoryAmounts[categoryId] += amount;
+        } else {
+            categoryAmounts[categoryId] = amount;
+        }
+    }
+  });
+
+  return categoryAmounts;
+}
+
+// To create budget data with total current expense and balance
+export const createData = (budgets, currentMonthExpense) => {
+
+  budgets.forEach(budget => {
+    const categoryId = budget.category_id;
+    const allocatedAmount = budget.amount;
+    const totalExpense = currentMonthExpense[categoryId] || 0;
+
+    const balance = allocatedAmount - totalExpense;
+    
+    budget.total_expenses = totalExpense;
+    budget.balance = balance; 
+  });
+
+  return budgets;
+
+}

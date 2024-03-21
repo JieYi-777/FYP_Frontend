@@ -69,22 +69,55 @@
           <h3>This is simple budget chart</h3>
         </div>
 
-        <!-- The Data View to show the budgets -->
-        <div class="budget-list">
-          <DataView>
+        <!-- The Data Table to show the budgets -->
+        <div class="content">
+          <DataTable :value="newBudgets" removableSort>
 
+            <!-- Header of the data table -->
             <template #header>
-              <Button label="New" icon="pi pi-plus" severity="primary" class="mr-2" @click="openBudgetDialog('add')" />
+              <div class="flex flex-wrap gap-2 items-center justify-between">
+                <h2 class="m-0">Budget Summary</h2>
+                
+                <Button label="New" icon="pi pi-plus" severity="primary" class="mr-2" @click="openBudgetDialog('add')"/>
+              </div>
             </template>
 
-            <!-- To show it when no budget is created after -->
-            <template #empty> 
-              
-              <p class="font-bold">No budgets created.</p>
+            <!-- To show it when no budget is created -->
+            <template #empty> <span class="font-bold">No budgets created.</span> </template>
 
-            </template>
+            <!-- The 'category name' column -->
+            <Column field="category_name" header="Category" sortable></Column>
 
-          </DataView>
+            <!-- The 'allocated amount' column -->
+            <Column field="amount" header="Allocated Amount" sortable>
+              <template #body="{ data }">
+                {{formatCurrency(data.amount)}}
+              </template>
+            </Column>
+
+            <!-- The 'current total expense amount' column -->
+            <Column field="total_expenses" header="Current Month Expenses" sortable>
+              <template #body="{ data }">
+                {{formatCurrency(data.total_expenses)}}
+              </template>
+            </Column>
+
+            <!-- The 'balance amount' column -->
+            <Column field="balance" header="Balance" sortable>
+              <template #body="{ data }">
+                {{formatCurrency(data.balance)}}
+              </template>
+            </Column>
+
+            <!-- The edit and delete button -->
+            <Column :exportable="false" class="min-w-32">
+              <template #body="slotProps">
+                <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="openEditExpense(slotProps.data)" />
+                <Button icon="pi pi-trash" outlined rounded severity="danger" @click="deleteExpenseConfirm(slotProps.data)" />
+              </template>
+            </Column>
+
+          </DataTable>
         </div>
 
       </div>
@@ -97,18 +130,20 @@
 import Loading from '../components/Loading.vue';
 import Toast from 'primevue/toast';
 import Card from 'primevue/card';
-import DataView from 'primevue/dataview';
+import DataTable from 'primevue/datatable';
 import Button from 'primevue/button';
 import Dialog from 'primevue/dialog';
 import InputGroup from 'primevue/inputgroup';
 import InputGroupAddon from 'primevue/inputgroupaddon';
 import Dropdown from 'primevue/dropdown';
 import InputNumber from 'primevue/inputnumber';
+import Knob from 'primevue/knob';
+import Column from 'primevue/column';
 
 import { controlLoading } from '../composables/Loading';
-import { controlBudgetDialog, getBudgetDataRequest, extractExpenseIdCategory, disableCategoryOptions, budgetAmountValidation
-  } from '../composables/Budget';
-import { getExpenseDataRequest, expenseCategoryValidation } from '../composables/Expense';
+import { controlBudgetDialog, getBudgetDataRequest, extractExpenseIdCategory, disableCategoryOptions, budgetAmountValidation,
+  getCurrentMonthExpense, createData} from '../composables/Budget';
+import { getExpenseDataRequest, expenseCategoryValidation, formatCurrency } from '../composables/Expense';
 import { clearValue } from '../composables/Profile';
 import { checkValidInput } from '../composables/UserRegisterValidation';
 import { computed, ref } from 'vue';
@@ -118,7 +153,7 @@ import axios1 from '../axios.service';
 
 
 export default {
-  components: { Loading, Toast, Card, DataView, Button, Dialog, InputGroup, InputGroupAddon, Dropdown, InputNumber },
+  components: { Loading, Toast, Card, DataTable, Button, Dialog, InputGroup, InputGroupAddon, Dropdown, InputNumber, Knob, Column },
   setup() {
 
     // -----------------------------------------Common related-------------------------------------------------------
@@ -146,8 +181,12 @@ export default {
     // The expense category used by user
     const userExpenseCategoryList = ref([]);
 
+    // To get the total expense amount for each category
+    const currentExpenses = ref({});
+
     // The available budget category, after filter the used category from the user's expense categories
     const budgetCategoryOptions = computed(() => {
+      console.log(budgets.value)
       // Get the available budget category
       return disableCategoryOptions(userExpenseCategoryList.value, budgets.value);
     })
@@ -192,6 +231,9 @@ export default {
 
         // To get the latest category name used by user
         userExpenseCategoryList.value = extractExpenseIdCategory(expenses.value);
+
+        // Get the current month of expenses based on category
+        currentExpenses.value = getCurrentMonthExpense(expenses.value)
       } catch (error) {
         console.error('Error fetching expenses:', error);
       }
@@ -280,11 +322,19 @@ export default {
       }
     }
 
+    // ---------------------------------------------Data table related---------------------------------------------------
+
+    // It consist budget. total expense and balance
+    const newBudgets = computed(() => {
+      return createData(budgets.value, currentExpenses.value);
+    })
+
     return {
       loading, 
       budgetDialog, dialogHeaderTitle, openBudgetDialog, closeBudgetDialog, clearInputValue, clearValidationText,
       budgetCategoryOptions, selectedCategory, budgetCategory_validationText, hideBudgetCategoryValidationText,
       budgetAmount, budgetAmount_validationText, callCheckAmount, decideRequest,
+      newBudgets, formatCurrency
     };
 
   }
