@@ -114,6 +114,7 @@ import { checkValidInput } from '../composables/UserRegisterValidation';
 import { computed, ref } from 'vue';
 import { useStore } from 'vuex'
 import { useToast } from 'primevue/usetoast';
+import axios1 from '../axios.service';
 
 
 export default {
@@ -161,8 +162,11 @@ export default {
     const getBudgets = async() => {
       try {
 
+        // Get the token
+        const token = store.getters.getToken;
+
         // Call getBudgetDataRequest to fetch the budgets
-        const { budgets: budget_objects } = await getBudgetDataRequest();
+        const { budgets: budget_objects } = await getBudgetDataRequest(token);
 
         // Update the budgets ref with the fetched value
         budgets.value = budget_objects.value;
@@ -232,7 +236,7 @@ export default {
         // Get the token
         const token = store.getters.getToken;
 
-        axios1.post('/expense/add-expense', data,
+        axios1.post('/budget/add-budget', data,
         {
           headers: {
             'Authorization': `Bearer ${token}`
@@ -242,10 +246,10 @@ export default {
           stopLoading();
 
           // Close the dialog
-          closeExpenseDialog();
+          closeBudgetDialog();
 
-          // Call the function to get all the budgets (the function is defined below)
-          getExpenses();
+          // Call the function to get all the budgets
+          getBudgets();
 
           // Show the toast
           toast.add({ severity: 'success', summary: 'Budget Added', detail: response.data.message, life: 3000 });

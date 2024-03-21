@@ -34,15 +34,9 @@ export const controlBudgetDialog = () => {
 }
 
 // To get all budget data of user
-export const getBudgetDataRequest = async() => {
+export const getBudgetDataRequest = async(token) => {
   // Budget data ref
   const budgets = ref(null);
-
-  // Access the store object
-  const store = useStore();
-
-  // Get the token
-  const token = store.getters.getToken;
 
   try {
 
