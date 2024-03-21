@@ -71,16 +71,21 @@ export const getBudgetDataRequest = async() => {
 
 // To extract the expense category id with name
 export const extractExpenseIdCategory = (expenses) => {
+
   // Create an object to store unique category IDs and names
   const categoryObj = {};
 
   // Iterate through expenses to collect unique category IDs and names
   expenses.forEach(expense => {
-    categoryObj[expense.category_id] = expense.category_name;
+    // Convert category_id to integer
+    const categoryId = parseInt(expense.category_id);
+
+    // Store the category name with the corresponding ID
+    categoryObj[categoryId] = expense.category_name;
   });
 
   // Convert the object into an array of { id, name } objects
-  const categoryArray = Object.entries(categoryObj).map(([id, name]) => ({ id, name }));
+  const categoryArray = Object.entries(categoryObj).map(([id, name]) => ({ id: parseInt(id), name }));
 
   // Sort the categoryArray based on the name attribute
   categoryArray.sort((a, b) => a.name.localeCompare(b.name));

@@ -21,7 +21,7 @@
           <span>Category</span>
         </InputGroupAddon>
 
-        <Dropdown placeholder="Budget Category" v-model="selectedCategory" :options="budgetCategoryOptions" optionLabel="name"
+        <Dropdown placeholder="Budget Category" v-model="selectedCategory" :options="budgetCategoryOptions" optionLabel="name" optionDisabled="disabled"
           checkmark :class="{'p-invalid': budgetCategory_validationText}" @change="hideBudgetCategoryValidationText"/>
       </InputGroup>
     </div>
