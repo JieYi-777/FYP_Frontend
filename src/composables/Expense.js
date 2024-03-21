@@ -216,10 +216,10 @@ export const getExpenseDataRequest = async(token) => {
       }
     });
 
-    // Get expense category list
+    // Get expense data
     expenses.value =  response.data.expenses;
 
-    // Convert date strings to Date objects
+    // Convert date strings to Date objects, and change the amount type to float
     expenses.value.forEach((expense) => {
       expense.date = new Date(expense.date);
       expense.amount = parseFloat(expense.amount);
