@@ -85,6 +85,13 @@
             <!-- To show it when no budget is created -->
             <template #empty> <span class="font-bold">No budgets created.</span> </template>
 
+            <!-- The edit and delete button -->
+            <Column :exportable="false">
+              <template #body="{ data }">
+                <Knob :modelValue="data.percentage" :size="120" :strokeWidth="10" valueTemplate="{value}%" />
+              </template>
+            </Column>
+
             <!-- The 'category name' column -->
             <Column field="category_name" header="Category" sortable></Column>
 

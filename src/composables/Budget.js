@@ -179,9 +179,11 @@ export const createData = (budgets, currentMonthExpense) => {
     const totalExpense = currentMonthExpense[categoryId] || 0;
 
     const balance = allocatedAmount - totalExpense;
+    const percentage = Math.round((totalExpense / allocatedAmount) * 100);
     
     budget.total_expenses = totalExpense;
-    budget.balance = balance; 
+    budget.balance = balance;
+    budget.percentage = percentage;
   });
 
   return budgets;
