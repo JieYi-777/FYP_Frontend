@@ -480,7 +480,7 @@ export default {
       expenseTitle.value = expense.title;
       expenseDate.value = expense.date;
       expenseAmount.value = expense.amount;
-      selectedCategory.value = {'id': expense.category_id, 'name': expense.category_name};
+      selectedCategory.value = {id: expense.category_id, name: expense.category_name};
       expenseDescription.value = expense.description;
 
       openExpenseDialog('edit');

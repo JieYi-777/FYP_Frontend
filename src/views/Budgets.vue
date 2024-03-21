@@ -21,7 +21,7 @@
           <span>Category</span>
         </InputGroupAddon>
 
-        <Dropdown placeholder="Budget Category" v-model="selectedCategory" :options="budgetCategoryOptions" optionLabel="name" optionDisabled="disabled"
+        <Dropdown placeholder="Budget Category" v-model="selectedCategory" :options="options" optionLabel="name" optionDisabled="disabled"
           checkmark :class="{'p-invalid': budgetCategory_validationText}" @change="hideBudgetCategoryValidationText"/>
       </InputGroup>
     </div>
@@ -119,7 +119,7 @@
             <!-- The edit and delete button -->
             <Column :exportable="false" class="min-w-32">
               <template #body="slotProps">
-                <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="openEditExpense(slotProps.data)" />
+                <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="openEditBudget(slotProps.data)" />
                 <Button icon="pi pi-trash" outlined rounded severity="danger" @click="deleteExpenseConfirm(slotProps.data)" />
               </template>
             </Column>
@@ -149,7 +149,7 @@ import Column from 'primevue/column';
 
 import { controlLoading } from '../composables/Loading';
 import { controlBudgetDialog, getBudgetDataRequest, extractExpenseIdCategory, disableCategoryOptions, budgetAmountValidation,
-  getCurrentMonthExpense, createData} from '../composables/Budget';
+  getCurrentMonthExpense, createData, getSpecificBudget, enableOption} from '../composables/Budget';
 import { getExpenseDataRequest, expenseCategoryValidation, formatCurrency } from '../composables/Expense';
 import { clearValue } from '../composables/Profile';
 import { checkValidInput } from '../composables/UserRegisterValidation';
@@ -193,7 +193,6 @@ export default {
 
     // The available budget category, after filter the used category from the user's expense categories
     const budgetCategoryOptions = computed(() => {
-      console.log(budgets.value)
       // Get the available budget category
       return disableCategoryOptions(userExpenseCategoryList.value, budgets.value);
     })
@@ -329,6 +328,19 @@ export default {
       }
     }
 
+    // To decide options used in the dropdown based on the dialog
+    const options = computed(() => {
+      if(dialogHeaderTitle.value === 'Add Budget'){
+        return budgetCategoryOptions.value;
+      }
+      else if(dialogHeaderTitle.value === 'Edit Budget'){
+        return enableSpecificBudgetOptions.value;
+      }
+      else{
+        return [];
+      }
+    })
+
     // ---------------------------------------------Data table related---------------------------------------------------
 
     // It consist budget. total expense and balance
@@ -336,12 +348,35 @@ export default {
       return createData(budgets.value, currentExpenses.value);
     })
 
+    // -------------------------------------------------Update budget related-----------------------------------------------
+
+    // To hold the old data, to compare the new data, and check is there any update
+    const oldBudgetData = ref(null);
+
+    // To hold the category options that enable the current old category when updating budget
+    const enableSpecificBudgetOptions = ref([]);
+
+    // To open the budget dialog and assign the value
+    const openEditBudget = (budget_obj) => {
+      // Convert into budget object copy
+      const budget = getSpecificBudget(budget_obj);
+
+      oldBudgetData.value = budget;
+
+      // Assign the value
+      enableSpecificBudgetOptions.value = enableOption(budgetCategoryOptions.value, budget.category_id);
+      selectedCategory.value = {id: budget.category_id, name: budget.category_name, disabled: false};
+      budgetAmount.value = budget.amount;
+
+      openBudgetDialog('edit');
+    }
+
     return {
       loading, 
       budgetDialog, dialogHeaderTitle, openBudgetDialog, closeBudgetDialog, clearInputValue, clearValidationText,
-      budgetCategoryOptions, selectedCategory, budgetCategory_validationText, hideBudgetCategoryValidationText,
+      options, selectedCategory, budgetCategory_validationText, hideBudgetCategoryValidationText,
       budgetAmount, budgetAmount_validationText, callCheckAmount, decideRequest,
-      newBudgets, formatCurrency
+      newBudgets, formatCurrency, openEditBudget
     };
 
   }

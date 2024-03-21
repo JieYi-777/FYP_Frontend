@@ -189,3 +189,22 @@ export const createData = (budgets, currentMonthExpense) => {
   return budgets;
 
 }
+
+// To egt a copy of specific budget data
+export const getSpecificBudget = (budget_object) => {
+  const budget = {...budget_object};
+
+  return budget;
+}
+
+
+// To temporary enable the budget category option
+export const enableOption = (options, id) => {
+
+  // To find the object
+  const targetObject = options.find(obj => obj.id === id);
+
+  targetObject.disabled = false;
+
+  return options;
+}
