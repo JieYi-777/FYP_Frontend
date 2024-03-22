@@ -149,7 +149,7 @@ import Column from 'primevue/column';
 
 import { controlLoading } from '../composables/Loading';
 import { controlBudgetDialog, getBudgetDataRequest, extractExpenseIdCategory, disableCategoryOptions, budgetAmountValidation,
-  getCurrentMonthExpense, createData, getSpecificBudget, enableOption} from '../composables/Budget';
+  getCurrentMonthExpense, createData, getSpecificBudget, enableSpecificCategoryOptions} from '../composables/Budget';
 import { getExpenseDataRequest, expenseCategoryValidation, formatCurrency } from '../composables/Expense';
 import { clearValue } from '../composables/Profile';
 import { checkValidInput } from '../composables/UserRegisterValidation';
@@ -191,11 +191,7 @@ export default {
     // To get the total expense amount for each category
     const currentExpenses = ref({});
 
-    // The available budget category, after filter the used category from the user's expense categories
-    const budgetCategoryOptions = computed(() => {
-      // Get the available budget category
-      return disableCategoryOptions(userExpenseCategoryList.value, budgets.value);
-    })
+    
 
     // The selected category and the validation text ref and function
     const { selectedCategory, expenseCategory_validationText: budgetCategory_validationText, hideExpenseCategoryValidationText: hideBudgetCategoryValidationText } = expenseCategoryValidation();
@@ -331,7 +327,7 @@ export default {
     // To decide options used in the dropdown based on the dialog
     const options = computed(() => {
       if(dialogHeaderTitle.value === 'Add Budget'){
-        return budgetCategoryOptions.value;
+        return disableCategoryOptions(userExpenseCategoryList.value, budgets.value);
       }
       else if(dialogHeaderTitle.value === 'Edit Budget'){
         return enableSpecificBudgetOptions.value;
@@ -361,10 +357,11 @@ export default {
       // Convert into budget object copy
       const budget = getSpecificBudget(budget_obj);
 
+      // The old budget data
       oldBudgetData.value = budget;
 
       // Assign the value
-      enableSpecificBudgetOptions.value = enableOption(budgetCategoryOptions.value, budget.category_id);
+      enableSpecificBudgetOptions.value = enableSpecificCategoryOptions(userExpenseCategoryList.value, budgets.value, budget.category_id);
       selectedCategory.value = {id: budget.category_id, name: budget.category_name, disabled: false};
       budgetAmount.value = budget.amount;
 

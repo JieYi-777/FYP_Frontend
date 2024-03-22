@@ -1,6 +1,5 @@
 import axios1 from "../axios.service";
 import { ref } from "vue";
-import { useStore } from "vuex";
 
 // The ref and function related to the budget dialog
 export const controlBudgetDialog = () => {
@@ -198,13 +197,16 @@ export const getSpecificBudget = (budget_object) => {
 }
 
 
-// To temporary enable the budget category option
-export const enableOption = (options, id) => {
+// To enable the specific budget category from disabled state, then return the options
+export const enableSpecificCategoryOptions = (userExpenseCategoryList, budgets, id) => {
 
-  // To find the object
-  const targetObject = options.find(obj => obj.id === id);
+  userExpenseCategoryList.forEach(category => {
+    if (budgets.some(budget => budget.category_id === category.id) && category.id !== id) {
+      category.disabled = true;
+    } else {
+      category.disabled = false;
+    }
+  });
 
-  targetObject.disabled = false;
-
-  return options;
-}
+  return userExpenseCategoryList;
+};
