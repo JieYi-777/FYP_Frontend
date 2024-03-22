@@ -564,7 +564,7 @@ export default {
         message: 'Confirm deletion of the expense?',
         header: 'Delete Expense',
         icon: 'pi pi-exclamation-triangle',
-        rejectClass: 'p-button-secondary p-button-sm',
+        rejectClass: 'p-button-secondary',
         acceptClass: 'p-button-danger',
         rejectLabel: 'No',
         acceptLabel: 'Yes',
@@ -579,7 +579,7 @@ export default {
           const expense = {...expense_obj};
           const expense_id = expense.id;
 
-          // Send the request to change the value of notification_enabled to false
+          // Send the request to delete the expense
           axios1.delete(`/expense/delete-expense/${expense_id}`,
           {
             headers: {
@@ -589,7 +589,7 @@ export default {
             // Hide the loading spinner
             stopLoading();
 
-            // Call the function to get all the expenses (the function is defined below)
+            // Call the function to get all the expenses
             getExpenses();
 
             // Show the toast
@@ -600,7 +600,7 @@ export default {
             stopLoading();
 
             const status = error.response?.status || 500;
-            const data = error.response.data.message? error.response.data : { message: 'An error occurred while updating expense.' };
+            const data = error.response.data.message? error.response.data : { message: 'An error occurred while deleting expense.' };
             console.error(error);
 
             if(status === 404){

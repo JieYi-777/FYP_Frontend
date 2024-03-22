@@ -6,6 +6,9 @@
   <!-- Toast -->
   <Toast position="bottom-right" class="toast" />
 
+  <!-- Confirm Dialog -->
+  <ConfirmDialog group="delete-budget"></ConfirmDialog>
+
   <!-- The dialog to add or edit budget -->
   <Dialog v-model:visible="budgetDialog" :draggable="false" modal class="dialog" @hide="clearInputValue" @after-hide="clearValidationText">
 
@@ -120,7 +123,7 @@
             <Column :exportable="false" class="min-w-32">
               <template #body="slotProps">
                 <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="openEditBudget(slotProps.data)" />
-                <Button icon="pi pi-trash" outlined rounded severity="danger" @click="deleteExpenseConfirm(slotProps.data)" />
+                <Button icon="pi pi-trash" outlined rounded severity="danger" @click="deleteBudgetConfirm(slotProps.data)" />
               </template>
             </Column>
 
@@ -146,6 +149,7 @@ import Dropdown from 'primevue/dropdown';
 import InputNumber from 'primevue/inputnumber';
 import Knob from 'primevue/knob';
 import Column from 'primevue/column';
+import ConfirmDialog from 'primevue/confirmdialog';
 
 import { controlLoading } from '../composables/Loading';
 import { controlBudgetDialog, getBudgetDataRequest, extractExpenseIdCategory, disableCategoryOptions, budgetAmountValidation,
@@ -157,11 +161,14 @@ import { checkValidInput } from '../composables/UserRegisterValidation';
 import { computed, ref } from 'vue';
 import { useStore } from 'vuex'
 import { useToast } from 'primevue/usetoast';
+import { useConfirm } from 'primevue/useconfirm';
 import axios1 from '../axios.service';
 
 
+
 export default {
-  components: { Loading, Toast, Card, DataTable, Button, Dialog, InputGroup, InputGroupAddon, Dropdown, InputNumber, Knob, Column },
+  components: { Loading, Toast, Card, DataTable, Button, Dialog, InputGroup, InputGroupAddon,
+    Dropdown, InputNumber, Knob, Column, ConfirmDialog },
   setup() {
 
     // -----------------------------------------Common related-------------------------------------------------------
@@ -174,6 +181,9 @@ export default {
 
     // Access the toast object
     const toast = useToast();
+
+    // Access the confirm object
+    const confirm = useConfirm();
 
     // -----------------------------------------Add budget dialog related------------------------------------------------------
 
@@ -429,12 +439,71 @@ export default {
       }
     }
 
+    // -----------------------------------------------Delete budget related-------------------------------------------------
+
+    // To call the confirm dialog before delete the budget
+    const deleteBudgetConfirm = (budget_obj) => {
+      confirm.require({
+        group: 'delete-budget',
+        message: 'Confirm deletion of the budget?',
+        header: 'Delete Budget',
+        icon: 'pi pi-exclamation-triangle',
+        rejectClass: 'p-button-secondary',
+        acceptClass: 'p-button-danger',
+        rejectLabel: 'No',
+        acceptLabel: 'Yes',
+        accept: () => {
+          // Start the loading spinner
+          startLoading();
+
+          // Get the token
+          const token = store.getters.getToken;
+
+          // To get the budget id
+          const budget = {...budget_obj};
+          const budget_id = budget.id;
+
+          // Send the request to delete the budget
+          axios1.delete(`/budget/delete-budget/${budget_id}`,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          }).then(response => {
+            // Hide the loading spinner
+            stopLoading();
+
+            // Call the function to get all the budgets
+            getBudgets();
+
+            // Show the toast
+            toast.add({ severity: 'success', summary: 'Budget Deleted', detail: response.data.message, life: 3000 });
+
+          }).catch(error => {
+            // Hide the loading spinner
+            stopLoading();
+
+            const status = error.response?.status || 500;
+            const data = error.response.data.message? error.response.data : { message: 'An error occurred while deleting budget.' };
+            console.error(error);
+
+            if(status === 404){
+              toast.add({ severity: 'error', summary: data.message, detail: 'Cannot delete budget. Please check with us for assistance.', life: 3000 });
+            }
+            else{
+              toast.add({ severity: 'error', summary: 'Error', detail: data.message, life: 3000 });
+            }
+          })
+        },
+      });
+    }
+
     return {
       loading, 
       budgetDialog, dialogHeaderTitle, openBudgetDialog, closeBudgetDialog, clearInputValue, clearValidationText,
       options, selectedCategory, budgetCategory_validationText, hideBudgetCategoryValidationText,
       budgetAmount, budgetAmount_validationText, callCheckAmount, decideRequest,
-      newBudgets, changeKnobMax, formatCurrency, openEditBudget
+      newBudgets, changeKnobMax, formatCurrency, openEditBudget, deleteBudgetConfirm,
     };
 
   }
