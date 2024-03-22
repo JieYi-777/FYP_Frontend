@@ -635,6 +635,13 @@ export default {
         },
         labels: arr,
         colors: colors,
+        tooltip: {
+          y:{
+            formatter: function (val) {
+              return val.toLocaleString('en-MY', { style: 'currency', currency: 'MYR' });
+            }
+          }
+        },
         plotOptions: {
           pie: {
             donut: {
@@ -649,11 +656,19 @@ export default {
                 value: {
                   show: true,
                   offsetY: 20,
-                  fontSize: '24px'
+                  fontSize: '24px',
+                  formatter: function (val) {
+                    return parseFloat(val).toLocaleString('en-MY', { style: 'currency', currency: 'MYR' });
+                  }
                 },
                 total: {
                   show: true,
-                  fontSize: '30px'
+                  fontSize: '30px',
+                  formatter: function (w) {
+                    return w.globals.seriesTotals.reduce((a, b) => {
+                      return a + b
+                    }, 0).toLocaleString('en-MY', { style: 'currency', currency: 'MYR' });
+                  }
                 }
               }
             }
