@@ -68,9 +68,9 @@
       <div class="flex flex-col items-center">
 
         <!-- The chart to show the budget summary -->
-        <div class="mb-4 content">
+        <!-- <div class="mb-4 content">
           <h3>This is simple budget chart</h3>
-        </div>
+        </div> -->
 
         <!-- The Data Table to show the budgets -->
         <div class="content">
