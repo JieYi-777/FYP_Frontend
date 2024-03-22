@@ -138,7 +138,7 @@ export const budgetAmountValidation = () => {
   return { budgetAmount, budgetAmount_validationText, callCheckAmount };
 }
 
-// To extract the amount for each category, for current month
+// To extract the amount for each category, for current month (use category id as key)
 export const getCurrentMonthExpense = (expenses) => {
 
   // Get the current month
