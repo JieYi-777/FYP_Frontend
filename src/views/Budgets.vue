@@ -88,7 +88,7 @@
             <!-- The edit and delete button -->
             <Column :exportable="false">
               <template #body="{ data }">
-                <Knob :modelValue="data.percentage" :size="120" :strokeWidth="10" valueTemplate="{value}%" />
+                <Knob :modelValue="data.percentage" :size="120" :strokeWidth="10" :max="changeKnobMax(data.percentage)" valueTemplate="{value}%" />
               </template>
             </Column>
 
@@ -149,7 +149,8 @@ import Column from 'primevue/column';
 
 import { controlLoading } from '../composables/Loading';
 import { controlBudgetDialog, getBudgetDataRequest, extractExpenseIdCategory, disableCategoryOptions, budgetAmountValidation,
-  getCurrentMonthExpense, createData, getSpecificBudget, enableSpecificCategoryOptions} from '../composables/Budget';
+  getCurrentMonthExpense, createData, changeKnobMax, getSpecificBudget, enableSpecificCategoryOptions,
+  compareBudgetData} from '../composables/Budget';
 import { getExpenseDataRequest, expenseCategoryValidation, formatCurrency } from '../composables/Expense';
 import { clearValue } from '../composables/Profile';
 import { checkValidInput } from '../composables/UserRegisterValidation';
@@ -190,8 +191,6 @@ export default {
 
     // To get the total expense amount for each category
     const currentExpenses = ref({});
-
-    
 
     // The selected category and the validation text ref and function
     const { selectedCategory, expenseCategory_validationText: budgetCategory_validationText, hideExpenseCategoryValidationText: hideBudgetCategoryValidationText } = expenseCategoryValidation();
@@ -317,7 +316,7 @@ export default {
         sendAddBudgetRequest();
       }
       else if(dialogHeaderTitle.value === 'Edit Budget'){
-        //sendUpdateExpenseRequest();
+        sendUpdateBudgetRequest();
       }
       else{
         console.error('decide budget request error');
@@ -360,7 +359,7 @@ export default {
       // The old budget data
       oldBudgetData.value = budget;
 
-      // Assign the value
+      // Assign the value and enable the current category option
       enableSpecificBudgetOptions.value = enableSpecificCategoryOptions(userExpenseCategoryList.value, budgets.value, budget.category_id);
       selectedCategory.value = {id: budget.category_id, name: budget.category_name, disabled: false};
       budgetAmount.value = budget.amount;
@@ -368,12 +367,74 @@ export default {
       openBudgetDialog('edit');
     }
 
+    // To send update budget data request
+    const sendUpdateBudgetRequest = () => {
+
+      if(checkValidInput(selectedCategory.value, budgetCategory_validationText.value) && checkValidInput(budgetAmount.value, budgetAmount_validationText.value)){
+
+        const newBudgetData = {
+          category_id: selectedCategory.value.id,
+          amount: budgetAmount.value,
+        }
+
+        // If have new change, then send request
+        if(compareBudgetData(oldBudgetData.value, newBudgetData)){
+          // Start the loading spinner
+          startLoading();
+
+          // Get the token
+          const token = store.getters.getToken;
+
+          axios1.put(`/budget/update-budget/${oldBudgetData.value.id}`, newBudgetData,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          }).then(response => {
+            // Hide the loading spinner
+            stopLoading();
+
+            // Close the dialog
+            closeBudgetDialog();
+
+            // Call the function to get all the budgets
+            getBudgets();
+
+            // Show the toast
+            toast.add({ severity: 'success', summary: 'Budget Updated', detail: response.data.message, life: 3000 });
+
+          }).catch(error => {
+            // Hide the loading spinner
+            stopLoading();
+
+            const status = error.response?.status || 500;
+            const data = error.response.data.message? error.response.data : { message: 'An error occurred while updating budget.' };
+            console.error(error);
+
+            if(status === 404){
+              toast.add({ severity: 'error', summary: data.message, detail: 'Cannot update budget. Please check with us for assistance.', life: 3000 });
+            }
+            else{
+              toast.add({ severity: 'error', summary: 'Error', detail: data.message, life: 3000 });
+            }
+            
+
+          })
+        }
+        else{
+          // Show the toast
+          toast.add({ severity: 'warn', summary: 'No Changes Made', detail: 'Your budget details remain unchanged.', life: 3000 });
+        }
+        
+      }
+    }
+
     return {
       loading, 
       budgetDialog, dialogHeaderTitle, openBudgetDialog, closeBudgetDialog, clearInputValue, clearValidationText,
       options, selectedCategory, budgetCategory_validationText, hideBudgetCategoryValidationText,
       budgetAmount, budgetAmount_validationText, callCheckAmount, decideRequest,
-      newBudgets, formatCurrency, openEditBudget
+      newBudgets, changeKnobMax, formatCurrency, openEditBudget
     };
 
   }

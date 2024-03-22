@@ -189,6 +189,16 @@ export const createData = (budgets, currentMonthExpense) => {
 
 }
 
+// To determine the max of knob if over 100
+export const changeKnobMax = (value) => {
+  if(value < 100){
+    return 100;
+  }
+  else{
+    return value;
+  }
+}
+
 // To egt a copy of specific budget data
 export const getSpecificBudget = (budget_object) => {
   const budget = {...budget_object};
@@ -210,3 +220,19 @@ export const enableSpecificCategoryOptions = (userExpenseCategoryList, budgets, 
 
   return userExpenseCategoryList;
 };
+
+// To compare the old data and new data has change or not
+export const compareBudgetData = (oldBudget, newBudget) => {
+  
+  // Compare the category
+  if(oldBudget.category_id !== newBudget.category_id){
+    return true;
+  }
+
+  // Compare the amount
+  if(oldBudget.amount !== newBudget.amount){
+    return true;
+  }
+
+  return false;
+}
