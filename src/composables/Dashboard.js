@@ -56,3 +56,31 @@ export const createColumnChartData = (budgets, currentMonthExpense, allCategorie
   return chartData;
 
 }
+
+// To compute the months expense for the selected category
+export const getExpenseOverMonths = (selectedCategory, expenses) => {
+
+  // Get the current year and month
+  const currentYear = new Date().getFullYear();
+
+  // Initialize an array to store monthly expense values for the current year
+  const monthlyExpenses = Array(12).fill(0); // Initialize with zeros for each month
+
+  // Iterate through the expenses data
+  expenses.forEach(expense => {
+    // Parse the date of the expense
+    const expenseDate = new Date(expense.date);
+    
+    // Get the year and month of the expense
+    const expenseYear = expenseDate.getFullYear();
+    const expenseMonth = expenseDate.getMonth();
+    
+    // Check if the expense category matches the specified category and it's from the current year
+    if (expense.category_name === selectedCategory && expenseYear === currentYear) {
+      // Accumulate the amount for the month
+      monthlyExpenses[expenseMonth] += expense.amount;
+    }
+  });
+
+  return monthlyExpenses;
+}

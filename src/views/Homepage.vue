@@ -37,8 +37,32 @@
 
         </Panel>
 
-        <div v-else class="content overflow-x-auto">
-          <apexchart type="bar"  height="350" :series="columnChartSeris" :options="columnChartOptions"></apexchart>
+        <div v-else class="content">
+
+          <!-- To show the monthly expense vs budget chart -->
+          <div class="overflow-x-auto sm:overflow-hidden">
+            <apexchart type="bar"  height="350" :series="columnChartSeris" :options="columnChartOptions"></apexchart>
+          </div>
+
+          <Divider class="mb-9"/>
+
+          <!-- To show the year expense trend for selected category -->
+          <div>
+
+            <div class="mb-3">
+              <span class="font-bold me-3">Category:</span>
+
+              <!-- The dropdown to select a category -->
+              <Dropdown v-model="selectedCategory" :options="options" optionLabel="name" checkmark/>
+            </div>
+
+            <!-- To show the line chart -->
+            <div>
+              <apexchart type="line"  height="350" :series="lineChartSeries" :options="lineChartOptions"></apexchart>
+            </div>
+          
+          </div>
+          
         </div>
 
       </div>
@@ -51,17 +75,19 @@
 <script>
 import Card from 'primevue/card'
 import Panel from 'primevue/panel';
+import Divider from 'primevue/divider';
+import Dropdown from 'primevue/dropdown';
 import VueApexCharts from 'vue3-apexcharts';
 
-import { getCurrentMonthExpense, createColumnChartData } from '../composables/Dashboard';
-import { getBudgetDataRequest } from '../composables/Budget';
+import { getCurrentMonthExpense, createColumnChartData, getExpenseOverMonths } from '../composables/Dashboard';
+import { getBudgetDataRequest, extractExpenseIdCategory } from '../composables/Budget';
 import { getExpenseDataRequest, extractExpenseCategory } from '../composables/Expense';
 import { chartColors } from '../composables/Chart';
 import { computed, ref } from 'vue';
 import { useStore } from 'vuex';
 
 export default {
-  components: { Card, Panel, apexchart: VueApexCharts },
+  components: { Card, Panel, Divider, Dropdown, apexchart: VueApexCharts },
   setup() {
     // Access the store object
     const store = useStore();
@@ -126,7 +152,12 @@ export default {
         allCategories.value = extractExpenseCategory(expenses.value);
 
         // Get the current month of expenses based on category
-        currentExpenses.value = getCurrentMonthExpense(expenses.value)
+        currentExpenses.value = getCurrentMonthExpense(expenses.value);
+
+        // To initialize the chart options
+        options.value = extractExpenseIdCategory(expenses.value);
+        selectedCategory.value = options.value[0];
+        
       } catch (error) {
         console.error('Error fetching expenses:', error);
       }
@@ -151,7 +182,7 @@ export default {
           fontFamily: '"Inter var", sans-serif',
         },
         title: {
-          text: 'Monthly Expense vs Budget',
+          text: 'Current Month Expense vs Budget',
           align: 'center',
         },
         dataLabels: {
@@ -169,6 +200,12 @@ export default {
           title: {
             text: 'Amount (RM)'
           }
+        },
+        grid: {
+          row: {
+            colors: ['#f3f3f3', 'transparent'],
+            opacity: 0.5
+          },
         },
         tooltip: {
           y: {
@@ -188,11 +225,63 @@ export default {
           },
         ]
       }
-    }) 
+    })
+
+    // --------------------------------------Year expense trend line chart related-------------------------------------------------
+
+    // The selected category of dropdown for the line chart
+    const selectedCategory = ref({});
+
+    // The options for the dropdown
+    const options = ref([]);
+
+    // The series data of the line chart
+    const lineChartSeries = computed(() => {
+      return [{
+        name: selectedCategory.value.name,
+        data: getExpenseOverMonths(selectedCategory.value.name, expenses.value)
+      }]
+    })
+
+    const lineChartOptions = {
+      chart: {
+        type: 'line',
+        zoom: {
+          enabled: false
+        }
+      },
+      dataLabels: {
+        enabled: false
+      },
+      stroke: {
+        curve: 'straight'
+      },
+      title: {
+        text: 'Monthly Expense by Category',
+        align: 'center'
+      },
+      grid: {
+        row: {
+          colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
+          opacity: 0.5
+        },
+      },
+      xaxis: {
+        categories: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+      },
+      tooltip: {
+        y: {
+          formatter: function (val) {
+            return  val.toLocaleString('en-MY', { style: 'currency', currency: 'MYR' });
+          }
+        }
+      },
+    }
 
     return{
       showGuideline, 
-      columnChartSeris, columnChartOptions
+      columnChartSeris, columnChartOptions,
+      selectedCategory, options, lineChartSeries, lineChartOptions
     };
   }
 }
