@@ -40,7 +40,7 @@
         <div v-else class="content">
 
           <!-- To show the monthly expense vs budget chart -->
-          <div class="overflow-x-auto sm:overflow-hidden">
+          <div class="dashboard-charts">
             <apexchart type="bar"  height="350" :series="columnChartSeris" :options="columnChartOptions"></apexchart>
           </div>
 
@@ -57,7 +57,7 @@
             </div>
 
             <!-- To show the line chart -->
-            <div>
+            <div class="dashboard-charts">
               <apexchart type="line"  height="350" :series="lineChartSeries" :options="lineChartOptions"></apexchart>
             </div>
           
@@ -276,6 +276,16 @@ export default {
           }
         }
       },
+      responsive: [   // The responsive label and value in center of the donut chart
+        {
+          breakpoint: 480,
+          options: {
+            chart: {
+              width: 500
+            }
+          },
+        },
+      ]
     }
 
     return{

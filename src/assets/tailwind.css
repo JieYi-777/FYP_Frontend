@@ -93,6 +93,12 @@
   @apply w-full md:w-4/5 lg:w-3/5;
 }
 
+/* The responsive flex for total expense chart */
 .total-expense-chart-center {
   @apply md:flex md:justify-center;
+}
+
+/* For the responsive dashboard charts */
+.dashboard-charts {
+  @apply overflow-x-auto sm:overflow-hidden;
 }
