@@ -415,3 +415,18 @@ export const getTotalByCategory = (expenses, categories) => {
 
   return totalByCategory;
 }
+
+
+// To send the request to the server, so it will check the expenses of the user will exceed the budget or not
+export const sendCheckExpenseExceedBudget = (token, category_id) => {
+  
+  axios1.post('/expense/check-monthly-expense', {category_id: category_id},
+  {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  }).catch((error) => {
+    // An error occurred while sending the request
+    console.error('Error sending monthly expense check request:', error);
+  });
+}

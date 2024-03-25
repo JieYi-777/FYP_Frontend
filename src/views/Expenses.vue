@@ -238,7 +238,7 @@ import { controlExpenseDialog, expenseTitleValidation, expenseAmountValidation, 
   getExpenseCategory, expenseCategoryValidation, expenseDescriptionValidation,
   getExpenseDataRequest, formatDate, formatCurrency, createFilters, titleFilterOptions,
   dateFilterOptions, amountFilterOptions, extractExpenseCategory, getSpecificExpense,
-  compareExpenseData, getTotalByCategory} from '../composables/Expense';
+  compareExpenseData, getTotalByCategory, sendCheckExpenseExceedBudget} from '../composables/Expense';
 import { clearValue } from '../composables/Profile';
 import { checkValidInput } from '../composables/UserRegisterValidation';
 import { controlLoading } from '../composables/Loading';
@@ -367,6 +367,9 @@ export default {
 
           // Call the function to get all the expenses (the function is defined below)
           getExpenses();
+
+          // To send request to check the monthly expenses will exceed budget or not
+          sendCheckExpenseExceedBudget(token, data.category_id);  
 
           // Show the toast
           toast.add({ severity: 'success', summary: 'Expense Added', detail: response.data.message, life: 3000 });
@@ -500,6 +503,9 @@ export default {
           description: expenseDescription.value.trim()
         }
 
+        // Get the token
+        const token = store.getters.getToken;
+
         // If have new change, then send request
         if(compareExpenseData(oldExpenseData.value, newExpenseData)){
           // Start the loading spinner
@@ -507,9 +513,6 @@ export default {
 
           // Change the date format and add the id
           newExpenseData.date = newExpenseData.date.toISOString();
-
-          // Get the token
-          const token = store.getters.getToken;
 
           axios1.put(`/expense/update-expense/${oldExpenseData.value.id}`, newExpenseData,
           {
@@ -525,6 +528,9 @@ export default {
 
             // Call the function to get all the expenses (the function is defined below)
             getExpenses();
+
+            // To send request to check the monthly expenses will exceed budget or not
+            sendCheckExpenseExceedBudget(token, newExpenseData.category_id);
 
             // Show the toast
             toast.add({ severity: 'success', summary: 'Expense Updated', detail: response.data.message, life: 3000 });
@@ -551,7 +557,6 @@ export default {
           // Show the toast
           toast.add({ severity: 'warn', summary: 'No Changes Made', detail: 'Your expense details remain unchanged.', life: 3000 });
         }
-        
       }
     }
 
