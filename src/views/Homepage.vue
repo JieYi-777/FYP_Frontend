@@ -184,6 +184,9 @@ export default {
         title: {
           text: 'Current Month Expense vs Budget',
           align: 'center',
+          style: {
+            fontSize:  '17px',
+          }
         },
         dataLabels: {
           enabled: false
@@ -223,6 +226,26 @@ export default {
               }
             },
           },
+          {
+            breakpoint: 640,
+            options: {
+              title: {
+                style: {
+                  fontSize:  '14px',
+                }
+              }
+            },
+          },
+          {
+            breakpoint: 768,
+            options: {
+              title: {
+                style: {
+                  fontSize:  '15px',
+                }
+              }
+            },
+          },
         ]
       }
     })
@@ -258,7 +281,10 @@ export default {
       },
       title: {
         text: 'Monthly Expense by Category',
-        align: 'center'
+        align: 'center',
+        style: {
+          fontSize:  '17px',
+        }
       },
       grid: {
         row: {
@@ -282,6 +308,36 @@ export default {
           options: {
             chart: {
               width: 500
+            }
+          },
+        },
+        {
+          breakpoint: 640,
+          options: {
+            title: {
+              style: {
+                fontSize:  '14px',
+              }
+            }
+          },
+        },
+        {
+          breakpoint: 768,
+          options: {
+            title: {
+              style: {
+                fontSize:  '15px',
+              }
+            }
+          },
+        },
+        {
+          breakpoint: 1024,
+          options: {
+            title: {
+              style: {
+                fontSize:  '16px',
+              }
             }
           },
         },

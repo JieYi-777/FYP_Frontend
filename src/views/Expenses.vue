@@ -640,6 +640,14 @@ export default {
         },
         labels: arr,
         colors: colors,
+        title: {
+          text: 'Overall Category Spending',
+          align: 'center',
+          offsetX: -60,
+          style: {
+            fontSize:  '17px',
+          }
+        },
         tooltip: {
           y:{
             formatter: function (val) {
@@ -712,6 +720,12 @@ export default {
         {
           breakpoint: 640,
           options: {
+            title: {
+              offsetX: 4,
+              style: {
+                fontSize:  '14px',
+              }
+            },
             legend: {
               position: "bottom"
             },
@@ -744,6 +758,11 @@ export default {
         {
           breakpoint: 768,
           options: {
+            title: {
+              style: {
+                fontSize:  '15px',
+              }
+            },
             plotOptions: {
               pie: {
                 donut: {
@@ -773,6 +792,11 @@ export default {
         {
           breakpoint: 1024,
           options: {
+            title: {
+              style: {
+                fontSize:  '16px',
+              }
+            },
             plotOptions: {
               pie: {
                 donut: {
