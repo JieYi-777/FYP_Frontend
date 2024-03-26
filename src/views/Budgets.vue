@@ -154,7 +154,7 @@ import ConfirmDialog from 'primevue/confirmdialog';
 import { controlLoading } from '../composables/Loading';
 import { controlBudgetDialog, getBudgetDataRequest, extractExpenseIdCategory, disableCategoryOptions, budgetAmountValidation,
   getCurrentMonthExpense, createData, changeKnobMax, getSpecificBudget, enableSpecificCategoryOptions,
-  compareBudgetData} from '../composables/Budget';
+  compareBudgetData, sendCheckBudgetIsExceeded} from '../composables/Budget';
 import { getExpenseDataRequest, expenseCategoryValidation, formatCurrency } from '../composables/Expense';
 import { clearValue } from '../composables/Profile';
 import { checkValidInput } from '../composables/UserRegisterValidation';
@@ -304,6 +304,9 @@ export default {
           // Call the function to get all the budgets
           getBudgets();
 
+          // To check the budget will be exceeded by total expense
+          sendCheckBudgetIsExceeded(token, data.category_id);
+
           // Show the toast
           toast.add({ severity: 'success', summary: 'Budget Added', detail: response.data.message, life: 3000 });
 
@@ -409,6 +412,9 @@ export default {
 
             // Call the function to get all the budgets
             getBudgets();
+
+            // To check the budget will be exceeded by total expense
+            sendCheckBudgetIsExceeded(token, newBudgetData.category_id);
 
             // Show the toast
             toast.add({ severity: 'success', summary: 'Budget Updated', detail: response.data.message, life: 3000 });

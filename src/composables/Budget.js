@@ -236,3 +236,17 @@ export const compareBudgetData = (oldBudget, newBudget) => {
 
   return false;
 }
+
+// To send the request to the server, so it will check the budget of the user will be exceeded by the budget or not
+export const sendCheckBudgetIsExceeded = (token, category_id) => {
+  
+  axios1.post('/budget/check-monthly-budget', {category_id: category_id},
+  {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  }).catch((error) => {
+    // An error occurred while sending the request
+    console.error('Error sending monthly budget check request:', error);
+  });
+}
