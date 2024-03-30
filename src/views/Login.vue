@@ -9,7 +9,7 @@
 
       <!-- The content (login form) of the Card component -->
       <template #content>
-        <form>
+        <form @keyup.enter="login">
 
           <!-- Username input -->
           <div>
