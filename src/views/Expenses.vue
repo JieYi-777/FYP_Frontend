@@ -27,7 +27,7 @@
             <span>Title</span>
           </InputGroupAddon>
 
-          <InputText placeholder="Expense Title" v-model="expenseTitle" :class="{'p-invalid': expenseTitle_validationText}"/>
+          <InputText placeholder="Expense Title" v-model="expenseTitle" :class="{'p-invalid': expenseTitle_validationText}" @keyup="sendCategoryPrediction"/>
         </InputGroup>
       </div>
 
@@ -38,7 +38,7 @@
 
       <!-- Expense description text area input -->
       <div>
-        <Textarea rows="4" class="w-full" v-model="expenseDescription" placeholder="Enter your expense description here... (Optional)" :class="{'p-invalid': expenseDescription_validationText}"/>
+        <Textarea rows="4" class="w-full" v-model="expenseDescription" placeholder="Enter your expense description here... (Optional)" :class="{'p-invalid': expenseDescription_validationText}" @keyup="sendCategoryPrediction"/>
       </div>
 
       <!-- Validation respond to expense description input -->
@@ -78,8 +78,8 @@
       <!-- Expense category input -->
       <div>
 
-        <div v-show="predictedCategory" class="ms-2 mb-1">
-          <span class="font-bold"> Category Prediction: {{ predictedCategory }}</span>
+        <div v-show="predictedExpenseCategory" class="ms-2 mb-1">
+          <span class="font-bold"> Category Prediction: {{ predictedExpenseCategory }}</span>
           <span class="ms-3 text-blue-500 italic underline cursor-pointer">Use it</span>
         </div>
 
@@ -244,7 +244,7 @@ import { controlExpenseDialog, expenseTitleValidation, expenseAmountValidation, 
   getExpenseCategory, expenseCategoryValidation, expenseDescriptionValidation,
   getExpenseDataRequest, formatDate, formatCurrency, createFilters, titleFilterOptions,
   dateFilterOptions, amountFilterOptions, extractExpenseCategory, getSpecificExpense,
-  compareExpenseData, getTotalByCategory, sendCheckExpenseExceedBudget} from '../composables/Expense';
+  compareExpenseData, getTotalByCategory, sendCheckExpenseExceedBudget, predictExpenseCategory} from '../composables/Expense';
 import { clearValue } from '../composables/Profile';
 import { checkValidInput } from '../composables/UserRegisterValidation';
 import { controlLoading } from '../composables/Loading';
@@ -253,6 +253,7 @@ import { ref } from 'vue';
 import { useStore } from 'vuex'
 import { useToast } from 'primevue/usetoast';
 import { useConfirm } from "primevue/useconfirm";
+import { debounce } from 'lodash';
 import axios1 from '@/axios.service'
 
 export default {
@@ -294,8 +295,14 @@ export default {
     // To get the expense description ref and its validation text ref
     const { expenseDescription, expenseDescription_validationText } = expenseDescriptionValidation();
 
-    // The predicted expense category ref
-    const predictedCategory = ref('');
+    // The predicted expense category ref and function to call the prediction
+    const { predictedExpenseCategory, getPredictedExpenseCategory } = predictExpenseCategory();
+
+    // To send the request to get the prediction for the expense category
+    const sendCategoryPrediction = debounce(() => {
+      const token = store.getters.getToken;
+      getPredictedExpenseCategory(token, expenseTitle.value, expenseDescription.value);
+    }, 2000)
 
     // Define the function to get the expense category list
     const getExpenseCategoryList = async() => {
@@ -320,6 +327,7 @@ export default {
       expenseAmount.value = null;   // clearValue is make the string empty, so cannot use
       selectedCategory.value = null;
       clearValue(expenseDescription);
+      clearValue(predictedExpenseCategory); // Clear the prediction
     }
 
     // To clear the validation text value when the dialog is closed
@@ -868,7 +876,7 @@ export default {
     return {
       loading,
       expenseDialog, dialogHeaderTitle, openExpenseDialog, closeExpenseDialog,
-      clearInputValue, clearValidationText, decideRequest, predictedCategory,
+      clearInputValue, clearValidationText, decideRequest, predictedExpenseCategory, sendCategoryPrediction,
       expenseTitle, expenseTitle_validationText, expenseAmount, expenseAmount_validationText, callCheckAmount,
       expenseDate, maxDate, resetExpenseDate, resetDateWhenBlur,
       selectedCategory, expenseCategoryList, expenseCategory_validationText, hideExpenseCategoryValidationText,

@@ -430,3 +430,42 @@ export const sendCheckExpenseExceedBudget = (token, category_id) => {
     console.error('Error sending monthly expense check request:', error);
   });
 }
+
+// To set ref for the predicted expense category and the the request
+export const predictExpenseCategory = () => {
+
+  // The empty expense category
+  const predictedExpenseCategory = ref('');
+
+  // To send the request to get the prediction for expense using title and description
+  const getPredictedExpenseCategory = (token, title, description) => {
+
+    title = title.trim()
+    description = description.trim()
+
+    if(!title && !description){
+      return ''
+    }
+    else{
+      const data = {
+        title: title,
+        description: description
+      }
+
+      axios1.post('/expense/predict-expense-category', data,
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      }).then(response => {
+
+        predictedExpenseCategory.value = response.data.prediction;
+
+      }).catch(error => {
+        console.error('Error fetching expense category list:', error);
+      })
+    }
+  }
+
+  return { predictedExpenseCategory, getPredictedExpenseCategory };
+}
