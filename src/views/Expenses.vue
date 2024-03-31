@@ -77,6 +77,12 @@
 
       <!-- Expense category input -->
       <div>
+
+        <div v-show="predictedCategory" class="ms-2 mb-1">
+          <span class="font-bold"> Category Prediction: {{ predictedCategory }}</span>
+          <span class="ms-3 text-blue-500 italic underline cursor-pointer">Use it</span>
+        </div>
+
         <InputGroup>
           <InputGroupAddon>
             <span>Category</span>
@@ -287,6 +293,9 @@ export default {
 
     // To get the expense description ref and its validation text ref
     const { expenseDescription, expenseDescription_validationText } = expenseDescriptionValidation();
+
+    // The predicted expense category ref
+    const predictedCategory = ref('');
 
     // Define the function to get the expense category list
     const getExpenseCategoryList = async() => {
@@ -859,7 +868,7 @@ export default {
     return {
       loading,
       expenseDialog, dialogHeaderTitle, openExpenseDialog, closeExpenseDialog,
-      clearInputValue, clearValidationText, decideRequest,
+      clearInputValue, clearValidationText, decideRequest, predictedCategory,
       expenseTitle, expenseTitle_validationText, expenseAmount, expenseAmount_validationText, callCheckAmount,
       expenseDate, maxDate, resetExpenseDate, resetDateWhenBlur,
       selectedCategory, expenseCategoryList, expenseCategory_validationText, hideExpenseCategoryValidationText,
