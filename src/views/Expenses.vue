@@ -36,16 +36,14 @@
         <small class="redText">{{ expenseTitle_validationText }}</small>
       </div>
 
-      <!-- Expense date input -->
-      <div class="mb-9">
-        <InputGroup>
-          <InputGroupAddon>
-            <span>Date</span>
-          </InputGroupAddon>
+      <!-- Expense description text area input -->
+      <div>
+        <Textarea rows="4" class="w-full" v-model="expenseDescription" placeholder="Enter your expense description here... (Optional)" :class="{'p-invalid': expenseDescription_validationText}"/>
+      </div>
 
-          <Calendar placeholder="Expense Date" v-model="expenseDate" dateFormat="dd/mm/yy" :maxDate="maxDate"
-            showIcon iconDisplay="input" @blur="resetDateWhenBlur"/>
-        </InputGroup>
+      <!-- Validation respond to expense description input -->
+      <div :class="{'text-left mb-2': expenseDescription_validationText, 'mb-8': !expenseDescription_validationText}">
+        <small class="redText">{{ expenseDescription_validationText }}</small>
       </div>
 
       <!-- Expense amount input -->
@@ -65,6 +63,18 @@
         <small class="redText">{{ expenseAmount_validationText }}</small>
       </div>
 
+      <!-- Expense date input -->
+      <div class="mb-9">
+        <InputGroup>
+          <InputGroupAddon>
+            <span>Date</span>
+          </InputGroupAddon>
+
+          <Calendar placeholder="Expense Date" v-model="expenseDate" dateFormat="dd/mm/yy" :maxDate="maxDate"
+            showIcon iconDisplay="input" @blur="resetDateWhenBlur"/>
+        </InputGroup>
+      </div>
+
       <!-- Expense category input -->
       <div>
         <InputGroup>
@@ -80,17 +90,7 @@
       <!-- Validation respond to expense category input -->
       <div :class="{'text-left mb-3': expenseCategory_validationText, 'mb-9': !expenseCategory_validationText}">
         <small class="redText">{{ expenseCategory_validationText }}</small>
-      </div>
-
-      <!-- Expense description text area input -->
-      <div>
-        <Textarea rows="4" class="w-full" v-model="expenseDescription" placeholder="Enter your expense description here... (Optional)" :class="{'p-invalid': expenseDescription_validationText}"/>
-      </div>
-
-      <!-- Validation respond to expense description input -->
-      <div :class="{'text-left mb-3': expenseDescription_validationText, 'mb-9': !expenseDescription_validationText}">
-        <small class="redText">{{ expenseDescription_validationText }}</small>
-      </div>
+      </div>      
 
     </form>
 
