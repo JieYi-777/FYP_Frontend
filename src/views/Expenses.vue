@@ -80,7 +80,7 @@
 
         <div v-show="predictedExpenseCategory" class="ms-2 mb-1">
           <span class="font-bold"> Category Prediction: {{ predictedExpenseCategory }}</span>
-          <span class="ms-3 text-blue-500 italic underline cursor-pointer">Use it</span>
+          <span class="ms-3 text-blue-500 italic underline cursor-pointer" @click="setSelectedCategory">Use it</span>
         </div>
 
         <InputGroup>
@@ -304,6 +304,12 @@ export default {
       getPredictedExpenseCategory(token, expenseTitle.value, expenseDescription.value);
     }, 2000)
 
+    // To change the selectedCategory with the predicted value of expense category
+    const setSelectedCategory = () => {
+      selectedCategory.value  = expenseCategoryList.value.find(category => category.name === predictedExpenseCategory.value);
+      clearValue(predictedExpenseCategory); // Clear the prediction value
+    }
+
     // Define the function to get the expense category list
     const getExpenseCategoryList = async() => {
       try {
@@ -327,7 +333,7 @@ export default {
       expenseAmount.value = null;   // clearValue is make the string empty, so cannot use
       selectedCategory.value = null;
       clearValue(expenseDescription);
-      clearValue(predictedExpenseCategory); // Clear the prediction
+      clearValue(predictedExpenseCategory); // Clear the prediction value
     }
 
     // To clear the validation text value when the dialog is closed
@@ -876,7 +882,7 @@ export default {
     return {
       loading,
       expenseDialog, dialogHeaderTitle, openExpenseDialog, closeExpenseDialog,
-      clearInputValue, clearValidationText, decideRequest, predictedExpenseCategory, sendCategoryPrediction,
+      clearInputValue, clearValidationText, decideRequest, predictedExpenseCategory, sendCategoryPrediction, setSelectedCategory,
       expenseTitle, expenseTitle_validationText, expenseAmount, expenseAmount_validationText, callCheckAmount,
       expenseDate, maxDate, resetExpenseDate, resetDateWhenBlur,
       selectedCategory, expenseCategoryList, expenseCategory_validationText, hideExpenseCategoryValidationText,
