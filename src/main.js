@@ -9,7 +9,7 @@ import './assets/tailwind.css';
 
 // Import PrimeVue UI framework
 import PrimeVue from 'primevue/config';
-import './assets/theme.css';
+import './assets/theme.css';            // Import the primevue css from assets so no conflict with tailwind when deployment
 import 'primeicons/primeicons.css';
 import ToastService from 'primevue/toastservice';
 import Ripple from 'primevue/ripple';
