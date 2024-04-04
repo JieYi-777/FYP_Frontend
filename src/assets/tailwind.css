@@ -1,5 +1,3 @@
-@layer tailwind-base, primevue, tailwind-utilities;
-
 @layer tailwind-base {
   @tailwind base;
 }
@@ -32,6 +30,8 @@
     @apply text-base my-4;
   }
 }
+
+@layer primevue;
 
 /* Set for input validation text */
 .redText {
