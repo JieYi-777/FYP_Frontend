@@ -9,7 +9,7 @@ import './assets/tailwind.css';
 
 // Import PrimeVue UI framework
 import PrimeVue from 'primevue/config';
-import 'primevue/resources/themes/aura-light-blue/theme.css';
+import './assets/theme.css';
 import 'primeicons/primeicons.css';
 import ToastService from 'primevue/toastservice';
 import Ripple from 'primevue/ripple';

@@ -1,3 +1,14 @@
+@layer tailwind-base, primevue, tailwind-utilities;
+
+@layer tailwind-base {
+  @tailwind base;
+}
+
+@layer tailwind-utilities {
+  @tailwind components;
+  @tailwind utilities;
+}
+
 @layer base {
   h1 {
     @apply text-3xl font-bold my-3;
@@ -90,15 +101,4 @@
 /* For the responsive dashboard charts */
 .dashboard-charts {
   @apply overflow-x-auto sm:overflow-hidden;
-}
-
-@layer tailwind-base, primevue, tailwind-utilities;
-
-@layer tailwind-base {
-  @tailwind base;
-}
-
-@layer tailwind-utilities {
-  @tailwind components;
-  @tailwind utilities;
 }
