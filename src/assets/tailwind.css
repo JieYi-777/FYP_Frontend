@@ -31,7 +31,9 @@
   }
 }
 
-@layer primevue;
+@layer primevue{
+  
+}
 
 /* Set for input validation text */
 .redText {
