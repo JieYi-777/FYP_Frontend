@@ -449,7 +449,7 @@ export default {
       }
 
       // Check the old password and new password are same or not
-      if(oldPassword.value.trim() === newPassword.value.trim()){
+      if(oldPassword.value.trim() !== '' && newPassword.value.trim() !== '' && oldPassword.value.trim() === newPassword.value.trim()){
         newPassword_validationText.value = 'The new password cannot be the same as the old password.';
       }
 
